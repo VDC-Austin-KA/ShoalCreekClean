@@ -8,7 +8,7 @@ const shots = process.argv[2];
 const browser = await chromium.launch();
 const errors = [];
 const step = async (name, fn) => {
-  try { await fn(); console.log("✓", name); } catch (e) { errors.push(name); console.log("✗", name, "—", e.message.split("\n")[0]); }
+  try { await fn(); console.log("✓", name); } catch (e) { errors.push(name); console.log("✗", name, "—", e.message.split("\n").filter((l) => /waitFor|locator|Timeout|Error/.test(l)).slice(0, 3).join(" ⏎ ")); }
 };
 async function session(email) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
@@ -16,6 +16,7 @@ async function session(email) {
   page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
   if (email) {
     await page.goto(`${BASE}/login`);
+    await page.waitForLoadState("networkidle");
     await page.fill('input[type=email]', email);
     await page.fill('input[type=password]', "alpha2026!");
     await page.click('button:has-text("Sign in")');
@@ -43,6 +44,8 @@ await step("quote wizard → instant estimate → book", async () => {
   await p.click('button:has-text("Continue")');
   await p.getByText("Your name").locator("..").locator("input").fill("E2E Tester");
   await p.locator('input[type=email]').fill(`e2e${Date.now()}@example.com`);
+  await p.fill('input[placeholder="Company name"]', "E2E Rival Wash");
+  await p.fill('input[placeholder="Their price $"]', "1300");
   await snap(p, "02-quote-details");
   await p.click('button:has-text("Get my quote")');
   await p.getByText("Your instant estimate").waitFor();
@@ -129,6 +132,13 @@ await step("price book edit", async () => {
   await admin.goto(`${BASE}/admin/pricing`);
   await admin.getByText("Service rates").waitFor();
 });
+await step("competitor intel: real data + price-match quote captured", async () => {
+  await admin.goto(`${BASE}/admin/competitors`);
+  await admin.getByText("Our price book vs. published market prices").waitFor();
+  await admin.getByRole("link", { name: /Hi-Tech Power Wash/ }).waitFor();
+  await admin.getByText(/E2E Rival Wash · flatwork · 8,000 sqft/).waitFor(); // from the quote wizard's price-match field
+  await snap(admin, "13-competitors");
+});
 
 // ---- Field crew (mobile)
 await step("field: en route → clock in → photos → complete", async () => {
@@ -159,11 +169,12 @@ await step("client: dashboard, save card, pay invoice, receipt", async () => {
   await p.getByText("Job history & photo proof").waitFor();
   await snap(p, "11-client");
   await p.goto(`${BASE}/client/billing`);
+  await p.waitForLoadState("networkidle"); // let React hydrate before typing into controlled inputs
   await p.fill('input[placeholder^="Card number"]', "4242 4242 4242 4242");
   await p.click('button:has-text("Save card")');
   await p.locator("li", { hasText: "Visa •••• 4242" }).waitFor();
   await p.locator('button:has-text("Pay")').first().click();
-  await p.waitForTimeout(1000);
+  await p.locator("tr", { hasText: "Dumpster pad degrease" }).getByText("paid", { exact: true }).waitFor(); // invoice created by the field step
   await p.locator('a:has-text("Receipt")').first().click();
   await p.getByText("RECEIPT", { exact: true }).waitFor();
   await snap(p, "12-receipt");

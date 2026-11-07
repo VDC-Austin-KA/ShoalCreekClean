@@ -1,0 +1,1883 @@
+{
+ "retrieved_at": "2026-11-07",
+ "method": "Public websites (pricing, services, gallery, testimonial pages) and Thumbtack profiles/reviews, downloaded and extracted; each price verified to appear verbatim on its source page. Only a company's OWN published prices are recorded; blog 'industry averages' are excluded and noted.",
+ "marketplace_benchmarks": {
+  "source": "https://www.thumbtack.com/tx/austin/pressure-washing/",
+  "text": [
+   "How much does pressure washing cost per square foot?\nThe cost of hiring a pressure washer will depend on the square footage of your home, which translates to the square footage of your exterior walls. In general, expect to pay around $0.10-$0.17 per square foot of your property size. Ask the professional how much they charge per square foot of the surface itself. This can be helpful in estimating the cost to pressure wash driveways, decks, fences and roofs."
+  ]
+ },
+ "unreachable": [
+  {
+   "name": "Centex Gutters",
+   "website": "https://www.centexgutters.com/",
+   "reason": "Download failed twice for both https://www.centexgutters.com/gutter-cleaning-cedar-park-texas.php and https://www.centexgutters.com/ (curl exit 56, connection reset/no data via proxy). No data extracted; nothing inferred. Retry later or check manually."
+  },
+  {
+   "name": "Enviro-Master (Austin, RPS Commercial Pressure Washing Services)",
+   "website": "https://enviro-master.com/commercial-cleaning-locations/austin-texas/rps-commercial-pressure-washing-services",
+   "reason": "Unreachable: the single GET returned a Cloudflare 'Sorry, you have been blocked' page (Ray ID a56a3d3a0da055eb; 5.6 KB, no content). A second attempt with a browser-like User-Agent was not made because it would amount to circumventing the bot block (denied by the permission system). No data extracted; kind/focus left null because nothing was verified."
+  },
+  {
+   "name": "Squeegee Squad (Central Austin)",
+   "website": "https://squeegeesquad.com/central-austin-tx/",
+   "reason": "Requested URL returned a Cloudflare 'Sorry, you have been blocked' page (host wpenginepowered.com); no content extracted. Did not attempt to bypass. 'kind' left null: the URL structure (/central-austin-tx/areas-served/...) suggests a franchise location but that was not verified from page content."
+  }
+ ],
+ "competitors": [
+  {
+   "slug": "atx-clean-pro-wash",
+   "name": "ATX Clean Pro Wash LLC",
+   "website": "https://atxcleanprowash.com/",
+   "base_city": "Austin",
+   "address": null,
+   "phone": "(512) 710-5832",
+   "service_area": [
+    "Austin",
+    "Round Rock",
+    "Cedar Park",
+    "Pflugerville",
+    "Leander",
+    "South Austin"
+   ],
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "deck_fence",
+    "driveway",
+    "flatwork",
+    "gutter",
+    "other:car_detailing",
+    "roof",
+    "sealing",
+    "softwash_house",
+    "window"
+   ],
+   "services_evidenced": [
+    "driveway",
+    "softwash_house",
+    "flatwork",
+    "window",
+    "other:car_detailing"
+   ],
+   "evidence_notes": "Gallery page lists 3 captioned items (Heavy Mildew Driveway, House Wash, Driveway Transformation = 2 driveway, 1 house wash). 6 Google-review quotes on homepage (3 repeated on Pflugerville page): James (walks, porches, driveway, home, carport), George (windows), Jan (windows), Alexis (pressure washing + windows), Styliano/G (windows, patio, car detailing). No commercial clients named.",
+   "prices": [
+    {
+     "service": "softwash_house",
+     "text": "House washing single-story, from $199",
+     "low": 199,
+     "high": null,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "driveway",
+     "text": "Driveway & walkway, from $99",
+     "low": 99,
+     "high": null,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "roof",
+     "text": "Roof cleaning soft wash, from $375",
+     "low": 375,
+     "high": null,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "gutter",
+     "text": "Gutter cleaning, from $99",
+     "low": 99,
+     "high": null,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "window",
+     "text": "Windows exterior, from $150 (screens +$30)",
+     "low": 150,
+     "high": null,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "window",
+     "text": "Windows interior + exterior, from $249",
+     "low": 249,
+     "high": null,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "deck_fence",
+     "text": "Deck & patio, from $149",
+     "low": 149,
+     "high": null,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "deck_fence",
+     "text": "Fence & siding, from $199",
+     "low": 199,
+     "high": null,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "other:car_detailing",
+     "text": "Car detailing mobile, from $149",
+     "low": 149,
+     "high": null,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "other:bundle",
+     "text": "Bundle House + Driveway: $269 (flat)",
+     "low": 269,
+     "high": 269,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "other:bundle",
+     "text": "Bundle Pre-Listing Curb Appeal (house, driveway, ext windows, deck/patio, front fence): $599 (flat)",
+     "low": 599,
+     "high": 599,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    },
+    {
+     "service": "other:bundle",
+     "text": "Bundle Roof + Gutter: $449 (flat)",
+     "low": 449,
+     "high": 449,
+     "unit": "job",
+     "source": "https://atxcleanprowash.com/pricing/"
+    }
+   ],
+   "strategies": [
+    "Free quote, usually same day; written firm quote valid 30 days",
+    "Starting prices cover typical single-story; pricing FAQ says about 60% of jobs land within $50 of the start price",
+    "Flat-priced bundles",
+    "Licensed & insured, general liability, COI on request",
+    "Final walk-through, fix on the spot",
+    "Claims 5.0 / 50+ Google reviews",
+    "Claims 96% of first-time clients rebook within 12 months and 24h average quote-to-job turnaround (unverified)",
+    "No subcontractors",
+    "Mon-Sat 8am-6pm"
+   ],
+   "confidence": "high",
+   "notes": "Residential-focused; About page says 'Austin's homes and businesses' but no commercial service page, nothing commercial in nav. Only city published is 'Austin, TX' (no street address). Pflugerville page is a templated city page but the site has real pricing page and real review text. Journal posts claim 'from $99' for Round Rock/fence. Site is dated 2026 (new). | Compiler: bundle prices re-tagged other:bundle so they don't skew single-service minimums.",
+   "sources": [
+    "https://atxcleanprowash.com/pressure-washing-pflugerville/",
+    "https://atxcleanprowash.com/",
+    "https://atxcleanprowash.com/pricing/",
+    "https://atxcleanprowash.com/gallery/",
+    "https://atxcleanprowash.com/about/"
+   ],
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "slug": "atx-soft-wash",
+   "name": "ATX Soft Wash",
+   "website": "https://www.washaustin.com/",
+   "base_city": "Round Rock",
+   "address": "425 Round Rock West Drive #110, Round Rock, TX 78681",
+   "phone": "(512) 773-6115",
+   "service_area": [
+    "Austin",
+    "Round Rock",
+    "Cedar Park",
+    "Georgetown",
+    "Pflugerville",
+    "Leander",
+    "Hutto",
+    "Lakeway",
+    "Lago Vista",
+    "Bee Cave",
+    "Dripping Springs",
+    "West Lake Hills",
+    "Liberty Hill",
+    "Volente",
+    "Brushy Creek",
+    "Jollyville",
+    "Manor",
+    "Hornsby Bend",
+    "Hudson Bend",
+    "Jonestown",
+    "Briarcliff",
+    "Rollingwood",
+    "San Leanna",
+    "Spicewood",
+    "Buda",
+    "Manchaca",
+    "Sun City"
+   ],
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "deck_fence",
+    "driveway",
+    "flatwork",
+    "gutter",
+    "other:commercial_window_cleaning",
+    "other:gutter_guard_install",
+    "other:limestone_edging",
+    "other:maintenance_program",
+    "roof",
+    "softwash_house",
+    "solar",
+    "window"
+   ],
+   "services_evidenced": [
+    "window",
+    "roof",
+    "softwash_house",
+    "driveway",
+    "flatwork",
+    "deck_fence",
+    "solar",
+    "gutter",
+    "other:limestone_edging",
+    "other:commercial_window_cleaning"
+   ],
+   "evidence_notes": "Reviews page: 35 customer reviews (all 5-star) with job detail: many window jobs (incl. one 3-story commercial building window cleaning, Hayden/Josh/Ryan), metal roof soft wash, house exterior wash, driveway/walkway/stone, flagstone patio, deck+teak furniture, solar panels (3 reviews), limestone edging. Gutter page has 3 testimonials (one 2-story house gutters). Gallery page has no captions (images only).",
+   "prices": [],
+   "strategies": [
+    "Free quote / complimentary assessment",
+    "14-day no-clog gutter guarantee (free return)",
+    "7-day rain guarantee on windows, rain block deionized water, free hard-water removal",
+    "Maintenance plans: semi-annual $50 off each cleaning; quarterly $100 off each cleaning (window cleaning page)",
+    "Licensed & insured, 100% satisfaction, 'warrantied service'",
+    "Claims 700+ reviews across Google, Facebook, Yelp, Nice Job",
+    "Text when en route; 24-hour service in one review"
+   ],
+   "confidence": "high",
+   "notes": "No dollar prices published on any page read; pricing is quote-only ('best prices' claims). Window cleaning is the strongest line (many window testimonials). Gutter page says 'ATX Soft Wash' though gutter H1 uses 'ATX Gutter Cleaning'. Only one commercial job evidenced (window cleaning).",
+   "sources": [
+    "https://www.washaustin.com/gutter-cleaning/",
+    "https://www.washaustin.com/",
+    "https://www.washaustin.com/gallery/",
+    "https://www.washaustin.com/recurring-maintenance-program/",
+    "https://www.washaustin.com/reviews/",
+    "https://www.washaustin.com/pressure-washing/",
+    "https://www.washaustin.com/locations/"
+   ],
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "name": "Bailey & Bear Commercial Cleaning",
+   "website": "https://www.baileyandbearcleaning.com/pressure-washing-austin",
+   "base_city": "Austin",
+   "address": null,
+   "phone": "512-689-8346",
+   "service_area": [
+    "Austin",
+    "Westlake",
+    "Downtown Austin"
+   ],
+   "kind": "local",
+   "focus": "commercial",
+   "services_claimed": [
+    "building_wash",
+    "drive_thru",
+    "dumpster_pad",
+    "flatwork",
+    "fleet",
+    "gum_removal",
+    "other:estate_exterior",
+    "other:event_venue",
+    "other:hoa_community",
+    "other:limestone_cleaning",
+    "other:post_construction",
+    "other:restaurant_patio",
+    "other:soft_wash_facades_stone",
+    "parking_garage",
+    "roof",
+    "storefront"
+   ],
+   "services_evidenced": [],
+   "evidence_notes": "No gallery images, captions or pressure-washing testimonials seen (home has a '#gallery' anchor but text shows only 'Proof: Austin venues we have cleaned' on the commercial-cleaning page). Named venues (Brazos Hall, 800 Congress, Green Light Social, Voodoo Room) are for interior janitorial; restaurant clients (Uchi, Uchiko, Loro, Modern Bar) 'can add patio work' - a claim, not evidence of pressure-washing jobs.",
+   "prices": [],
+   "strategies": [
+    "Free quote after walkthrough; written scope, fixed price in writing before work",
+    "'No published per-square-foot rate'; flat per-visit quoting",
+    "60-second quote form; photo-based scoping",
+    "Insured, COI on request; $1M per occurrence / $2M aggregate GL (commercial-cleaning page)",
+    "Claims 5.0 stars on Google",
+    "Off-hours work; test patch before full wash; before/after photos",
+    "Wash-water containment / runoff plan stated at walkthrough",
+    "Recurring or one-time; interval-based programs with two frequencies per quote",
+    "Owner-operated, one point of contact; re-clean within one hour at no charge (janitorial scope)"
+   ],
+   "confidence": "low",
+   "notes": "Primarily a commercial janitorial company; pressure washing is a secondary service with long SEO-style explanatory copy and many internal cross-link pages (restaurant, fleet, HOA, estate, limestone, soft wash Westlake). Page states explicitly it does not do sealing/striping or kitchen hoods/ducts, and no high pressure on stone/stucco/roofs. No street address found in pages read.",
+   "sources": [
+    "https://www.baileyandbearcleaning.com/pressure-washing-austin",
+    "https://www.baileyandbearcleaning.com/commercial-cleaning",
+    "https://www.baileyandbearcleaning.com/restaurant-patio-pressure-washing-austin"
+   ],
+   "slug": "bailey-and-bear",
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "slug": "bright-brothers-north-austin",
+   "name": "Bright Brothers of North Austin",
+   "website": "https://www.brightbrothersofnorthaustin.com/",
+   "base_city": "Leander",
+   "address": "7696 183A Toll Rd, Building 9 Unit C, Leander, TX 78641",
+   "phone": "1-512-650-4344 (site header also shows 1-844-340-8989)",
+   "service_area": [
+    "Austin",
+    "Cedar Park",
+    "Coupland",
+    "Dripping Springs",
+    "Georgetown",
+    "Round Rock",
+    "Leander",
+    "Marble Falls"
+   ],
+   "kind": "franchise",
+   "focus": "mixed",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "driveway",
+    "flatwork",
+    "gutter",
+    "holiday_lighting",
+    "other:apartment_condo",
+    "other:gutter_guard_install",
+    "other:kool_deck_cleaning",
+    "other:limestone_stone",
+    "other:permanent_outdoor_lighting",
+    "parking_garage",
+    "roof",
+    "softwash_house",
+    "solar",
+    "storefront",
+    "window"
+   ],
+   "services_evidenced": [
+    "softwash_house",
+    "driveway",
+    "roof",
+    "gutter",
+    "solar",
+    "deck_fence",
+    "window",
+    "holiday_lighting",
+    "building_wash",
+    "other:permanent_outdoor_lighting",
+    "other:limestone_stone",
+    "other:gutter_guard_install"
+   ],
+   "evidence_notes": "Before & After gallery: 156 sets total: House Washing 65, Walkway & Driveway 22, Pressure vs Soft Washing 18, Gutter Cleaning & Protection 13, Deck 10, Roof 8, Commercial Soft Washing 7, Solar 6, Permanent Outdoor Lighting 4, Fence 1, Window 1. Captioned samples read: Georgetown deck, Georgetown back patio, limestone home front, pool Kool Deck, retaining wall capstones. Testimonials page: 11 named testimonials (solar panels, stucco+porch+windows, stone/concrete/windows/gutters, gutter covers + backyard lights, two-story home 10+ yrs uncleaned, etc.). No named commercial client; 7 commercial before/after sets (not read individually).",
+   "prices": [],
+   "strategies": [
+    "Free no-obligation estimate",
+    "Triple-certified technicians (product safety, application, ladder safety)",
+    "Property Protection Plan",
+    "Financing page offered",
+    "2025 Angi Super Service Award",
+    "RainDrop Pro gutter guard authorized dealer",
+    "Franchise (franchisee location 2502, Bright Brothers Group LLC); year-round residential + commercial",
+    "Claims 'only 5 star reviews on Google' (customer quote)"
+   ],
+   "confidence": "high",
+   "notes": "Official Bright Brothers franchise (Franchise ID #2502); owner Kevin McKee (retired Army CW4). No dollar prices on pages read (coupons page 404s; financing page is a form). Header phone 1-844-340-8989 is the national number; local is 1-512-650-4344. Franchise includes holiday lighting, a seasonal revenue line. Commercial offering: commercial/industrial buildings, retail/storefronts, apartments, parking lots, garage/warehouse floors, sidewalks.",
+   "sources": [
+    "https://www.brightbrothersofnorthaustin.com/cedar-park-tx.html",
+    "https://www.brightbrothersofnorthaustin.com/",
+    "https://www.brightbrothersofnorthaustin.com/about-us/before-after.html",
+    "https://www.brightbrothersofnorthaustin.com/commercial-soft-washing.html",
+    "https://www.brightbrothersofnorthaustin.com/about-us.html",
+    "https://www.brightbrothersofnorthaustin.com/about-us/financing.html",
+    "https://www.brightbrothersofnorthaustin.com/about-us/coupons.html",
+    "https://www.brightbrothersofnorthaustin.com/about-us/testimonials.html"
+   ],
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "name": "Clean Green Power Washing LLC",
+   "website": "https://cleangreenpowerwashing.com/",
+   "base_city": "Austin",
+   "address": "13200 Pond Springs Rd, Unit G63, Austin, TX 78729",
+   "phone": "(512) 662-8422",
+   "service_area": [
+    "Austin",
+    "North Austin",
+    "Northwest Hills",
+    "Great Hills",
+    "Hyde Park",
+    "Tarrytown",
+    "Davenport Ranch",
+    "Four Points",
+    "Avery Ranch",
+    "Wells Branch",
+    "West Lake Hills",
+    "Rollingwood",
+    "Barton Creek",
+    "Lost Creek",
+    "Steiner Ranch",
+    "Spanish Oaks",
+    "Bee Cave",
+    "Lakeway",
+    "Hudson Bend",
+    "Cedar Park",
+    "Round Rock",
+    "Leander",
+    "Georgetown",
+    "Pflugerville"
+   ],
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "driveway",
+    "dumpster_pad",
+    "flatwork",
+    "gutter",
+    "other:apartment_breezeway",
+    "other:bird_dropping_removal",
+    "other:commercial_roof_cleaning",
+    "other:garage_floor",
+    "other:industrial_tank",
+    "other:ipe_deck_maintenance",
+    "other:mural_wall",
+    "other:natural_stone_cleaning",
+    "other:playground",
+    "other:pool_deck",
+    "parking_garage",
+    "roof",
+    "sealing",
+    "softwash_house",
+    "storefront",
+    "window"
+   ],
+   "services_evidenced": [
+    "driveway",
+    "flatwork",
+    "softwash_house",
+    "roof",
+    "deck_fence",
+    "gutter",
+    "window",
+    "sealing",
+    "parking_garage",
+    "building_wash",
+    "other:natural_stone_cleaning",
+    "other:apartment_breezeway",
+    "other:pool_deck",
+    "other:playground",
+    "other:industrial_tank",
+    "other:mural_wall"
+   ],
+   "evidence_notes": "/service-our-work gallery: 52 before/after images with descriptive alt-text captions (not visible captions): ~10 commercial (apartment breezeway, apartment exterior, apartment pool deck, church cross, industrial tank, painted curb island, mural wall, parking garage floor, parking lot space, playground) and the rest residential (driveways, patios, 4 gutters, 4+ decks/fences, 4 roofs, house washes, flagstone cleaning/sealing, IPE deck, window, statues). ~7 dated 2026 testimonials on homepage: 2-story soft wash siding, patio/deck repeat customer, general project work, one critical review of an $800 stone-sealing job. No storefront or dumpster-pad captions found.",
+   "prices": [],
+   "strategies": [
+    "Free on-site quotes with clear scope; quote from a visit or photos",
+    "Founded 2018 by Bryan Gerhold",
+    "100% satisfaction guarantee on commercial jobs",
+    "Eco-friendly / low-pressure soft wash claims",
+    "Mon-Sat 8am-8pm",
+    "Walkthrough before work; final check before crew leaves",
+    "Hiring page (Apply Now)"
+   ],
+   "confidence": "medium",
+   "notes": "No price list: commercial page says 'quoted per property' (flatwork, building faces, dumpster pads, grease, access, frequency). The '$800' on pages is a customer review of stone sealing, not a published price. Residential-leaning (commercial limited to 4 service pages) but strongest gallery evidence of the set. 'near-me' neighborhood pages (~24) look like SEO location pages. No insurance/COI statement seen on pages read.",
+   "sources": [
+    "https://cleangreenpowerwashing.com/",
+    "https://cleangreenpowerwashing.com/service-our-work/",
+    "https://cleangreenpowerwashing.com/commercial-pressure-washing-austin-tx/",
+    "https://cleangreenpowerwashing.com/about/",
+    "https://cleangreenpowerwashing.com/house-washing-austin-tx/",
+    "https://cleangreenpowerwashing.com/roof-soft-washing-austin-tx/",
+    "https://cleangreenpowerwashing.com/driveway-cleaning-austin-tx/",
+    "https://cleangreenpowerwashing.com/storefront-cleaning/",
+    "https://cleangreenpowerwashing.com/apartment-breezeway-cleaning/",
+    "https://cleangreenpowerwashing.com/natural-stone-sealing-austin-tx/"
+   ],
+   "slug": "clean-green-power-washing",
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "slug": "clean-pro-gutter-cleaning",
+   "name": "Clean Pro Gutter Cleaning, LLC",
+   "website": "https://cleanproguttercleaning.com/",
+   "base_city": "Sioux Falls",
+   "address": "4123 W 57th ST #1537, Sioux Falls, SD 57108 (corporate address)",
+   "phone": "(877) 736-0586",
+   "service_area": [
+    "Cedar Park",
+    "Leander",
+    "Liberty Hill",
+    "Georgetown",
+    "Round Rock",
+    "Pflugerville",
+    "Jonestown",
+    "Lago Vista",
+    "Volente",
+    "Austin",
+    "Brushy Creek"
+   ],
+   "kind": "national",
+   "focus": "residential",
+   "services_claimed": [
+    "gutter",
+    "other:gutter_guard_install"
+   ],
+   "services_evidenced": [],
+   "evidence_notes": "Three one-line testimonials on Cedar Park page ('Ok', 'Very professional...', 'Mark the person that did the work was very good'); none describe a job. Site links 'Our Work' and 'Case Studies' but those pages not read.",
+   "prices": [
+    {
+     "service": "gutter",
+     "text": "Gutter Cleaning single-story standard: Starting at $249 - $299",
+     "low": 249,
+     "high": 299,
+     "unit": "job",
+     "source": "https://cleanproguttercleaning.com/gutter-cleaning-cedar-park-tx/"
+    },
+    {
+     "service": "gutter",
+     "text": "Gutter Cleaning two-story: Starting at $299 - $399",
+     "low": 299,
+     "high": 399,
+     "unit": "job",
+     "source": "https://cleanproguttercleaning.com/gutter-cleaning-cedar-park-tx/"
+    },
+    {
+     "service": "gutter",
+     "text": "Gutter Cleaning multi-level estate: Starting at $399 - $499",
+     "low": 399,
+     "high": 499,
+     "unit": "job",
+     "source": "https://cleanproguttercleaning.com/gutter-cleaning-cedar-park-tx/"
+    },
+    {
+     "service": "other:gutter_guard_install",
+     "text": "$22.50 per linear foot installed (Clean Pro Guard)",
+     "low": 22.5,
+     "high": 22.5,
+     "unit": "lf",
+     "source": "https://cleanproguttercleaning.com/"
+    }
+   ],
+   "strategies": [
+    "Satellite-measured firm quote in 15 minutes",
+    "30-day workmanship warranty",
+    "Flat-rate, final invoice matches quote",
+    "Contractors carry $1M GL / $2M aggregate",
+    "0% APR financing via Wisetack (gutter guards)",
+    "Claims 4.9 stars from 3,727+ customers, 100K+ jobs, '25 Years in Business' (same site also says 'pioneered ... in 2012')",
+    "Recommends 3 cleanings/yr in Cedar Park"
+   ],
+   "confidence": "low",
+   "notes": "NOT a local operator: a marketplace/lead-gen network ('connect you with vetted, insured contractors in 43 states', 843 cities; 'Get matched with local pros'; 'Join Our Network'; 'our booking marketplace model'). Corporate address is in Sioux Falls SD (likely a mailbox suite). Cedar Park page is templated, heavy SEO/AI-style text (soil types, tree species). Prices are marketplace quote ranges, not a local crew's rate card. Self-contradictory age claims (25 years vs 2012).",
+   "sources": [
+    "https://cleanproguttercleaning.com/gutter-cleaning-cedar-park-tx/",
+    "https://cleanproguttercleaning.com/"
+   ],
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "name": "CleanTex Pressure Washing",
+   "website": "https://cleantexpressure.com/",
+   "base_city": "Austin",
+   "address": null,
+   "phone": "(512) 956-4636",
+   "service_area": [
+    "Austin",
+    "Round Rock",
+    "Cedar Park",
+    "Pflugerville",
+    "Leander",
+    "Bee Cave",
+    "Lakeway",
+    "Buda",
+    "Westlake",
+    "Dripping Springs",
+    "Manor",
+    "Kyle",
+    "Hutto",
+    "Georgetown"
+   ],
+   "kind": "local",
+   "focus": "commercial",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "drive_thru",
+    "driveway",
+    "dumpster_pad",
+    "flatwork",
+    "other:breezeways",
+    "other:hoa_common_areas",
+    "other:loading_docks",
+    "other:multifamily",
+    "other:pool_decks",
+    "parking_garage",
+    "roof",
+    "softwash_house",
+    "storefront"
+   ],
+   "services_evidenced": [
+    "dumpster_pad",
+    "flatwork",
+    "driveway",
+    "softwash_house",
+    "deck_fence"
+   ],
+   "evidence_notes": "6 anonymous testimonials (titles only, e.g. 'Restaurant Owner, South Lamar', 'HOA Board President, Cedar Park'): breezeway, common-area, dumpster pad, patio, sidewalks, multi-location QSR. 3 named-first-name residential testimonials on /-property-managers (home exterior, driveway/patio, deck/siding) with generic wording. Three captioned tiles (driveway, deck, patio). /before---after (Photos) page has no text content. Testimonials unverifiable.",
+   "prices": [],
+   "strategies": [
+    "Quote-based; free property walk and written quote within 24 hours",
+    "$2M general liability; same-day COI 'typically within 12 minutes'",
+    "Pre-approved on major Austin property-management vendor lists (claim)",
+    "90-day published service calendar; photo report after every visit; same lead crew",
+    "Recurring maintenance plans with simple monthly billing",
+    "Reschedule within 5 business days at no charge if rain",
+    "Hot water + degreaser for dumpster pads; 'health-inspector-ready documentation'",
+    "Eco-friendly biodegradable solutions"
+   ],
+   "confidence": "low",
+   "notes": "No prices. Homepage calculator displays 'Estimated price range $179 - $269' as a default output (inputs: Small/Medium/Large size selectors) - this is a UI default, not a published rate, so not placed in prices. Page is partly generic/templated: property-managers page contains residential-only boilerplate, repeated carousel testimonials with generic names, and FAQ contradicts (residential-only vs 'commercial is our focus'). Positioning claims (commercial focus, $2M GL) appear on homepage/FAQ/PM page only. No street address.",
+   "sources": [
+    "https://cleantexpressure.com/",
+    "https://cleantexpressure.com/-property-managers",
+    "https://cleantexpressure.com/before---after",
+    "https://cleantexpressure.com/faq",
+    "https://cleantexpressure.com/contact"
+   ],
+   "slug": "cleantex",
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "name": "For The Family Exterior Solutions (FTF)",
+   "website": "https://www.ftfexteriorsolutions.com/",
+   "base_city": "Austin",
+   "address": null,
+   "phone": "737-419-7101",
+   "service_area": [
+    "Austin",
+    "Round Rock",
+    "Pflugerville",
+    "Cedar Park",
+    "Georgetown",
+    "Hutto",
+    "Leander",
+    "Manor",
+    "Elgin",
+    "Bastrop",
+    "Buda",
+    "Kyle",
+    "Liberty Hill",
+    "Jonestown",
+    "Bee Cave",
+    "Lakeway",
+    "Dripping Springs",
+    "Spicewood",
+    "Volente",
+    "Lago Vista",
+    "Wimberley",
+    "San Marcos",
+    "Taylor"
+   ],
+   "kind": "local",
+   "focus": "mixed",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "drive_thru",
+    "driveway",
+    "dumpster_pad",
+    "flatwork",
+    "graffiti",
+    "gum_removal",
+    "other:hoa_multifamily_common_areas",
+    "other:junk_removal",
+    "other:loading_docks",
+    "other:monument_signs",
+    "other:patio_paver",
+    "other:sidewalk_cleaning",
+    "parking_garage",
+    "roof",
+    "softwash_house",
+    "storefront",
+    "window"
+   ],
+   "services_evidenced": [
+    "softwash_house",
+    "flatwork",
+    "storefront",
+    "building_wash",
+    "driveway"
+   ],
+   "evidence_notes": "/before-after: 8 captioned slider tiles + 1 featured job (concrete driveway): limestone house wall soft wash (1), storefront entry concrete (commercial), building perimeter/downspout line (commercial), main commercial walkway (commercial), sidewalks/walkways (3), pressure washing shaded path (1). No testimonials, named clients or review counts seen on pages read. Dumpster pad, drive-thru, gum, graffiti, parking lot are claims only.",
+   "prices": [],
+   "strategies": [
+    "'Free - Fast - Flat-Rate' quote; flat-rate quote after site walkthrough; reply within one business day",
+    "Monthly or quarterly maintenance contracts with locked-in pricing and priority scheduling",
+    "Night/early-morning/weekend work",
+    "Before/after photo reports for property managers",
+    "General liability insurance; COI on request",
+    "Hot water units, surface cleaners; degreasing/gum/graffiti",
+    "'Never collect until you are happy' / not a franchise / meet the owner",
+    "Claims 500+ homes cleaned, 7+ cities, 1-day avg quote reply"
+   ],
+   "confidence": "low",
+   "notes": "No prices. Heavily templated SEO site ('Powered by VULCAN' / Vulcan Advertising): commercial page copy says 'Why Austin Homeowners Book Our Commercial Property Cleaning Service', 23 city pages, FAQ headings reuse 'Austin Homeowners'. No street address; only 'Austin, TX'. 'Commercial' service page is one of ~9 services alongside junk removal.",
+   "sources": [
+    "https://www.ftfexteriorsolutions.com/services/commercial-cleaning",
+    "https://www.ftfexteriorsolutions.com/about",
+    "https://www.ftfexteriorsolutions.com/before-after",
+    "https://www.ftfexteriorsolutions.com/services",
+    "https://www.ftfexteriorsolutions.com/services/pressure-washing"
+   ],
+   "slug": "ftf-exterior-solutions",
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "slug": "georgetown-texas-power-wash",
+   "name": "Georgetown Texas Power Wash (GTX Power Wash)",
+   "website": "https://georgetowntexaspowerwash.com/",
+   "base_city": "Georgetown",
+   "address": "2324 Singletree Bend, Georgetown, TX 78628",
+   "phone": "(512) 661-6944",
+   "service_area": [
+    "Georgetown",
+    "Austin",
+    "Round Rock",
+    "Cedar Park",
+    "Leander",
+    "Liberty Hill",
+    "Hutto",
+    "Taylor",
+    "Jarrell",
+    "Pflugerville",
+    "Kyle",
+    "Buda",
+    "Bee Cave",
+    "Lakeway",
+    "Steiner Ranch",
+    "Manchaca"
+   ],
+   "kind": "local",
+   "focus": "mixed",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "drive_thru",
+    "driveway",
+    "dumpster_pad",
+    "flatwork",
+    "graffiti",
+    "gutter",
+    "other:apartment_complexes",
+    "other:brick_restoration",
+    "other:epoxy_flooring",
+    "other:hoa",
+    "other:landscaping",
+    "parking_garage",
+    "roof",
+    "softwash_house",
+    "storefront",
+    "window"
+   ],
+   "services_evidenced": [
+    "driveway",
+    "softwash_house"
+   ],
+   "evidence_notes": "Homepage 'Our Recent Work' is After/During/Videos tabs with no captions in HTML; Google reviews are a Trustindex widget not present in the downloaded HTML. No named clients, case studies or captioned projects. 0 evidenced from text.",
+   "prices": [
+    {
+     "service": "softwash_house",
+     "text": "House Washing $250 - $600 (Austin pricing guide, 2025; 'typical price range')",
+     "low": 250,
+     "high": 600,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "driveway",
+     "text": "Driveway Cleaning $100 - $250",
+     "low": 100,
+     "high": 250,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "roof",
+     "text": "Roof Cleaning $300 - $700",
+     "low": 300,
+     "high": 700,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "deck_fence",
+     "text": "Deck Cleaning $150 - $350",
+     "low": 150,
+     "high": 350,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "deck_fence",
+     "text": "Fence Cleaning $100 - $300",
+     "low": 100,
+     "high": 300,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "gutter",
+     "text": "Gutter Cleaning $100 - $200",
+     "low": 100,
+     "high": 200,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "building_wash",
+     "text": "Commercial Building $500 - $2,500+ ('priced by square footage')",
+     "low": 500,
+     "high": 2500,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "parking_garage",
+     "text": "Parking Lot / Garage $500 - $1,500 ('priced by square footage')",
+     "low": 500,
+     "high": 1500,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "flatwork",
+     "text": "Sidewalk Cleaning $100 - $300 ('Per 100 linear feet')",
+     "low": 100,
+     "high": 300,
+     "unit": "per_100lf",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "graffiti",
+     "text": "Graffiti Removal $150 - $500",
+     "low": 150,
+     "high": 500,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/"
+    },
+    {
+     "service": "window",
+     "text": "Window Cleaning $150 - $400 (Georgetown table)",
+     "low": 150,
+     "high": 400,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/"
+    },
+    {
+     "service": "softwash_house",
+     "text": "House Soft Washing $250 - $600 (Georgetown table)",
+     "low": 250,
+     "high": 600,
+     "unit": "job",
+     "source": "https://georgetowntexaspowerwash.com/"
+    }
+   ],
+   "strategies": [
+    "Free written estimate",
+    "100% satisfaction guarantee",
+    "GL insurance + workers comp; direct employees, no subs",
+    "Claims 4.8 stars, 33 (Austin page) / 37 (homepage) Google reviews; '#1 of 33 competitors' via Semrush avg rank 1.04",
+    "Since 2019",
+    "Same/next-day service; 'Open 24 hours'",
+    "Eco-friendly biodegradable solutions",
+    "HOA exterior programs",
+    "Thumbtack 4.6★ · 44 reviews · 41 hires · 11 yrs"
+   ],
+   "confidence": "medium",
+   "notes": "Price ranges come from the company's own 'Pricing Guide' tables but are labelled 'typical price range' / 'estimates' and read like industry-average SEO content; they are inconsistent across the site (homepage Austin table says house $200-$600, roof $300-$800, commercial $300-$2,000+; Austin page says $250-$600, $300-$700, $500-$2,500+). Treat as marketing ranges, not a rate card. Actual base is Georgetown, but the start page targets Austin with dozens of neighborhood/city pages (SEO heavy; 25+ location links). Also sells epoxy flooring and landscaping. Homepage lists the full commercial menu (building washing, drive-through, parking lot/garage, apartments, graffiti, HOA concrete) but gives no evidence of doing it. Not looked at: individual commercial/blog pages. | Compiler: sidewalk price is per 100 linear ft (re-unitized; excluded from $/sqft benchmarks). Prices are labelled 'typical range' and differ between pages. | Compiler: evidence from 5 Thumbtack reviews read; commercial/warehouse work listed but not in any review shown.",
+   "sources": [
+    "https://georgetowntexaspowerwash.com/pressure-washing-austin-texas/",
+    "https://georgetowntexaspowerwash.com/",
+    "https://www.thumbtack.com/tx/georgetown/pressure-washing/georgetown-texas-power-wash/service/514936949209677844"
+   ],
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "name": "Hi-Tech Power Wash",
+   "website": "https://www.hitechpowerwash.com/",
+   "base_city": "Austin",
+   "address": null,
+   "phone": "(512) 402-4896",
+   "service_area": [
+    "Austin",
+    "Round Rock",
+    "Cedar Park",
+    "Georgetown",
+    "Leander",
+    "Lakeway",
+    "San Marcos",
+    "Bastrop",
+    "Pflugerville",
+    "Bee Cave",
+    "Buda",
+    "Kyle"
+   ],
+   "kind": "local",
+   "focus": "mixed",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "drive_thru",
+    "driveway",
+    "dumpster_pad",
+    "flatwork",
+    "gum_removal",
+    "gutter",
+    "other:hoa_common_areas",
+    "other:limestone_cleaning",
+    "parking_garage",
+    "roof",
+    "softwash_house",
+    "storefront",
+    "window"
+   ],
+   "services_evidenced": [
+    "softwash_house",
+    "driveway",
+    "flatwork",
+    "storefront",
+    "building_wash",
+    "deck_fence",
+    "other:limestone_cleaning"
+   ],
+   "evidence_notes": "Homepage gallery: 8 captioned tiles (house soft wash, driveway, limestone, paver patio, storefront, stone patio, brick column, concrete patio) plus 9 before/after captions incl. 'Commercial storefront washing' and 'Commercial building wash'. 5 Google-review excerpts shown: porches, driveway, garage/backyard, general house. No named commercial clients; parking garage, dumpster pad, drive-thru, gum, roof, gutter, window appear only as claims (roof/gutter priced but no gallery caption seen).",
+   "prices": [
+    {
+     "service": "softwash_house",
+     "text": "house soft washing $0.18 per sq ft",
+     "low": 0.18,
+     "high": 0.18,
+     "unit": "sqft",
+     "source": "https://www.hitechpowerwash.com/"
+    },
+    {
+     "service": "driveway",
+     "text": "driveways, concrete and patios $0.20 per sq ft",
+     "low": 0.2,
+     "high": 0.2,
+     "unit": "sqft",
+     "source": "https://www.hitechpowerwash.com/services/driveway-cleaning"
+    },
+    {
+     "service": "roof",
+     "text": "Roof soft washing is $0.35 per square foot of roof area, so a 2,000 sq ft roof is around $700",
+     "low": 0.35,
+     "high": 0.35,
+     "unit": "sqft",
+     "source": "https://www.hitechpowerwash.com/services/roof-washing"
+    },
+    {
+     "service": "deck_fence",
+     "text": "decks and fences $0.30 per sq ft",
+     "low": 0.3,
+     "high": 0.3,
+     "unit": "sqft",
+     "source": "https://www.hitechpowerwash.com/"
+    },
+    {
+     "service": "other:limestone_cleaning",
+     "text": "Limestone cleaning is $0.40 per square foot, with a $250 minimum service charge",
+     "low": 0.4,
+     "high": 0.4,
+     "unit": "sqft",
+     "source": "https://www.hitechpowerwash.com/"
+    },
+    {
+     "service": "gutter",
+     "text": "gutter cleaning $1.50 per linear ft",
+     "low": 1.5,
+     "high": 1.5,
+     "unit": "lf",
+     "source": "https://www.hitechpowerwash.com/"
+    }
+   ],
+   "strategies": [
+    "Published residential per-sqft rates + 30-second online instant estimator",
+    "Free written itemized commercial quote; commercial priced on-site only",
+    "Recurring maintenance programs (weekly/monthly/quarterly/seasonal) at set price",
+    "After-hours/overnight/weekend scheduling",
+    "Certificate of insurance available; general liability on every job",
+    "Hot water equipment for grease/gum",
+    "Claims 5.0 Google rating, 100+ five-star reviews, 10+ years (since 2015)",
+    "Responds to estimate requests within 1 business day",
+    "Water conservation / minimized runoff claim; can bring own water for commercial",
+    "Hours Mon-Sat 9am-7pm",
+    "$250 minimum per visit",
+    "Publishes per-sq-ft rates openly"
+   ],
+   "confidence": "high",
+   "notes": "Residential prices are own published rates (homepage FAQ; roof and driveway service pages confirm). Commercial and window are explicitly 'quoted on-site'. Page text says $250 minimum applies once per visit. Commercial page /services/commercial has no prices. Site built by BudemAI (template). Only city given is 'Austin, TX'; no street address published.",
+   "sources": [
+    "https://www.hitechpowerwash.com/",
+    "https://www.hitechpowerwash.com/services/commercial",
+    "https://www.hitechpowerwash.com/about",
+    "https://www.hitechpowerwash.com/services/roof-washing",
+    "https://www.hitechpowerwash.com/services/driveway-cleaning"
+   ],
+   "slug": "hitech-power-wash",
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "slug": "leander-pressure-washing",
+   "name": "Leander Pressure Washing",
+   "website": "https://leanderpressurewashing.com/",
+   "base_city": "Leander",
+   "address": null,
+   "phone": "(737) 332-3626",
+   "service_area": [
+    "Leander",
+    "Cedar Park",
+    "Georgetown",
+    "Liberty Hill",
+    "Round Rock",
+    "Brushy Creek",
+    "Lago Vista"
+   ],
+   "kind": "local",
+   "focus": "mixed",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "driveway",
+    "flatwork",
+    "parking_garage",
+    "roof",
+    "sealing",
+    "softwash_house",
+    "storefront"
+   ],
+   "services_evidenced": [
+    "driveway"
+   ],
+   "evidence_notes": "Two generic first-name testimonials on the Cedar Park page ('Sarah J.', 'Mike & Jill T.'); only one mentions a job (driveway). 'Before & After' header present but no captions/clients. Likely template content.",
+   "prices": [
+    {
+     "service": "driveway",
+     "text": "Driveway Pressure Washing, Package Starts at $99.00",
+     "low": 99,
+     "high": null,
+     "unit": "job",
+     "source": "https://leanderpressurewashing.com/"
+    },
+    {
+     "service": "softwash_house",
+     "text": "Residential House Washing, Package Starts at $149.00",
+     "low": 149,
+     "high": null,
+     "unit": "job",
+     "source": "https://leanderpressurewashing.com/"
+    },
+    {
+     "service": "deck_fence",
+     "text": "Decks & Patios Washing, Package Starts at $199.00",
+     "low": 199,
+     "high": null,
+     "unit": "job",
+     "source": "https://leanderpressurewashing.com/"
+    },
+    {
+     "service": "flatwork",
+     "text": "'Commercial Power Wash' Package Starts at $299.00 (description is about concrete/stone/paver patios)",
+     "low": 299,
+     "high": null,
+     "unit": "job",
+     "source": "https://leanderpressurewashing.com/"
+    }
+   ],
+   "strategies": [
+    "Free instant quote / price calculator",
+    "100% satisfaction guarantee",
+    "Licensed & insured, COI offered",
+    "Same-day estimates, same-week appointments",
+    "Claims 500+ customers and 4.9 stars (Cedar Park page)",
+    "Regular maintenance plans annual/quarterly (no pricing)"
+   ],
+   "confidence": "low",
+   "notes": "Looks like a doorway/template site: 'leanderpressurewashing.com/pressure-washing-cedar-park-tx' has unfilled placeholder 'Serving your community since [YEAR]'; the same template is swapped per city (Brushy Creek, Georgetown, Lago Vista, Leander, Liberty Hill, Round Rock). The per-sqft figure ($0.50-$1.00) reads like a generic industry average and contradicts the homepage $99 driveway package; kept separately flagged, not trustworthy as own rate. Homepage package descriptions are copy-pasted (every package lists 'High-pressure cleaning / Optional sealing', including soft-wash house wash) and include 'Buy Now' buttons. No address, no company name, 'Locally Owned in Leander' claim unverifiable. No shared phone/address with other sites in this batch (all phones distinct). | Compiler: removed '$0.50–$1.00/sqft' (https://leanderpressurewashing.com/pressure-washing-cedar-park-tx) — generic range contradicting its own $99 driveway package.",
+   "sources": [
+    "https://leanderpressurewashing.com/pressure-washing-cedar-park-tx",
+    "https://leanderpressurewashing.com/"
+   ],
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "name": "Newpoint Services",
+   "website": "https://www.newpointservices.com/",
+   "base_city": "Del Valle",
+   "address": "4200 Burch Dr, Suite B-1, Del Valle, TX 78617 (Texas location per About page; company HQ footer: 1101 Central Avenue, Indianapolis, IN 46202)",
+   "phone": "317.255.7275 (HQ footer; no Austin-specific phone seen)",
+   "service_area": [
+    "Travis County",
+    "Williamson County",
+    "Hays County",
+    "Bastrop County",
+    "Caldwell County",
+    "Burnet County",
+    "Blanco County",
+    "Lee County",
+    "Fayette County",
+    "Llano County"
+   ],
+   "kind": "national",
+   "focus": "commercial",
+   "services_claimed": [
+    "building_wash",
+    "drive_thru",
+    "dumpster_pad",
+    "flatwork",
+    "other:gas_station_cleaning",
+    "other:hazard_abatement",
+    "other:high_rise",
+    "other:interior_janitorial",
+    "other:parking_facility_maintenance",
+    "other:porter_services",
+    "other:power_sweeping",
+    "other:soft_wash_canopies_awnings_signage",
+    "parking_garage",
+    "storefront",
+    "window"
+   ],
+   "services_evidenced": [],
+   "evidence_notes": "Austin pages show 'Before & After Photos' slideshows (4-5 slides) with no captions or alt text; no testimonials, case studies or named clients seen on pages read. Nothing could be tied to a specific service.",
+   "prices": [],
+   "strategies": [
+    "Free no-obligation quote form",
+    "Trailer-mounted 3,500 PSI at 220F units with water reclaim/recycle (claimed)",
+    "Cyclone 5500 drivable unit for large lots",
+    "Biodegradable cleaning agents claim",
+    "Sweeping/porter/parking-facility bundle",
+    "'Hundreds of businesses' served (generic claim)",
+    "Staff background in hospitality (About page)"
+   ],
+   "confidence": "low",
+   "notes": "No own prices published. GENERIC / NOT OWN PRICES: (a) Blog https://www.newpointservices.com/blog/how-much-does-it-cost-to-pressure-wash-a-commercial-property-in-texas says 'commercial pressure washing firms charge between $0.15 and $0.75 per square foot' industry-wide; 5,000-10,000 sq ft building 'could expect $750 to $7,500'; nationally $0.08-$0.35/sqft for pressure washing. (b) Austin page FAQ https://www.newpointservices.com/austin-tx/pressure-washing says cost 'typically ranging from $200 to $500' for smaller areas like storefronts, $1000+ for larger/windows/high-rise - generic SEO text, not a quote schedule. Austin page is partly SEO FAQ filler (even mentions homeowners every two years). Multi-market operator (Indianapolis, Austin, Baltimore, Columbus, Nashville), HQ Indianapolis; labelled 'national' as multi-state regional company, not a franchise (nothing says franchise). /results and /what-we-do 404.",
+   "sources": [
+    "https://www.newpointservices.com/austin-tx/pressure-washing",
+    "https://www.newpointservices.com/blog/how-much-does-it-cost-to-pressure-wash-a-commercial-property-in-texas",
+    "https://www.newpointservices.com/about",
+    "https://www.newpointservices.com/austin-tx"
+   ],
+   "slug": "newpoint-services",
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "name": "ATX Clean Pressure Washing",
+   "website": "https://powerwashaustin.com/",
+   "base_city": "Austin",
+   "address": "500 W 2nd St, Ste 1900, Austin, TX 78701; 1901 Ranch to Market Rd 620 Bldg A, Lakeway, TX 78734",
+   "phone": "512-379-6087",
+   "service_area": [
+    "Austin",
+    "Lakeway",
+    "Bee Cave",
+    "West Lake Hills",
+    "Rollingwood",
+    "Pflugerville",
+    "Round Rock",
+    "Cedar Park",
+    "Leander",
+    "Buda",
+    "Kyle",
+    "Dripping Springs"
+   ],
+   "kind": "local",
+   "focus": "mixed",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "drive_thru",
+    "driveway",
+    "dumpster_pad",
+    "flatwork",
+    "graffiti",
+    "gum_removal",
+    "holiday_lighting",
+    "other:apartment_complexes",
+    "other:awning",
+    "other:gas_station",
+    "other:hoa",
+    "other:parking_lot_sweeping",
+    "other:post_construction_cleanup",
+    "other:rust_removal",
+    "other:tennis_court",
+    "parking_garage",
+    "roof",
+    "softwash_house",
+    "solar",
+    "storefront",
+    "window"
+   ],
+   "services_evidenced": [
+    "softwash_house",
+    "driveway",
+    "flatwork",
+    "window",
+    "roof"
+   ],
+   "evidence_notes": "206 Google reviews embedded (4.9); 10 shown on page, all residential: house/exterior+driveway (3), hydraulic-fluid driveway stain (1), full job driveway+windows+roof+house (1), driveway/sidewalk/porch for listing (1), generic (4). 'Recent Work' gallery has no readable captions. No named commercial clients or case studies; commercial/garage/dumpster/graffiti etc. are service-page copy only.",
+   "prices": [
+    {
+     "service": "softwash_house",
+     "text": "$300 to $700 - Most house washes run $300 to $700, depending on square footage ($300 minimum)",
+     "low": 300,
+     "high": 700,
+     "unit": "job",
+     "source": "https://powerwashaustin.com/house-washing-austin-tx/"
+    },
+    {
+     "service": "roof",
+     "text": "$8.99 per roofing square - applied to the roof's square footage",
+     "low": 8.99,
+     "high": 8.99,
+     "unit": "roofing_square",
+     "source": "https://powerwashaustin.com/roof-cleaning-austin-tx/"
+    },
+    {
+     "service": "driveway",
+     "text": "$200 to $400, by size for a standard driveway clean",
+     "low": 200,
+     "high": 400,
+     "unit": "job",
+     "source": "https://powerwashaustin.com/driveway-cleaning-austin-tx/"
+    },
+    {
+     "service": "other:rust_removal",
+     "text": "Rust stain removal is priced per stain: $249 minimum",
+     "low": 249,
+     "high": null,
+     "unit": "job",
+     "source": "https://powerwashaustin.com/rust-removal-austin-tx/"
+    },
+    {
+     "service": "solar",
+     "text": "$199 to $299 for most residential solar panel cleanings",
+     "low": 199,
+     "high": 299,
+     "unit": "job",
+     "source": "https://powerwashaustin.com/solar-panel-cleaning-austin-tx/"
+    },
+    {
+     "service": "holiday_lighting",
+     "text": "Residential runs $6 to $8 per foot, with a $500 minimum",
+     "low": 6,
+     "high": 8,
+     "unit": "lf",
+     "source": "https://powerwashaustin.com/christmas-light-installation-austin-tx/"
+    },
+    {
+     "service": "dumpster_pad",
+     "text": "Around $299 per pad area - typically around $299 per pad area",
+     "low": 299,
+     "high": 299,
+     "unit": "job",
+     "source": "https://powerwashaustin.com/dumpster-pad-cleaning-austin-tx/"
+    },
+    {
+     "service": "other:maintenance_plan_basic",
+     "text": "Basic $39/mo, 12 monthly payments, $468 total (1x house soft wash, 1x front-entry wash, 2x spot treatments, 2x inspections)",
+     "low": 39,
+     "high": 39,
+     "unit": "month",
+     "source": "https://powerwashaustin.com/maintenance-plans/"
+    },
+    {
+     "service": "other:maintenance_plan_standard",
+     "text": "Standard $79/mo, $948 total (1x house wash, 1x driveway, 2x window & screen cleanings)",
+     "low": 79,
+     "high": 79,
+     "unit": "month",
+     "source": "https://powerwashaustin.com/maintenance-plans/"
+    },
+    {
+     "service": "other:maintenance_plan_premium",
+     "text": "Premium $149/mo, $1,788 total (1x house wash, 1x driveway, 1x sidewalk, 4x window, 1x patio furniture)",
+     "low": 149,
+     "high": 149,
+     "unit": "month",
+     "source": "https://powerwashaustin.com/maintenance-plans/"
+    }
+   ],
+   "strategies": [
+    "Free estimates; commercial = free site walk + written proposal; residential 30% deposit with card on file",
+    "Make-It-Right Satisfaction Guarantee",
+    "$2M general liability + $5M umbrella; OSHA-trained, background-checked techs; COI, W-9, references on request",
+    "Most jobs scheduled within 72 hours, same-day possible; answers around the clock; after-hours/overnight for commercial",
+    "Text/email confirmations, prep flyer, before/after photos",
+    "Recurring commercial contracts (weekly to annual) with better per-visit rate; residential 12-month plans $39/$79/$149 per month, 5-20% add-on discounts",
+    "Bundle discount: Standard ~5%, Premium ~10% (residential)",
+    "Claims 4.9 stars / 200+ Google reviews; 'since 2017, official May 2021'",
+    "Hours Mon-Sun 8am-8pm",
+    "Garage prep: sandbag drains, protect EV chargers (claim); payment terms net 30 for commercial"
+   ],
+   "confidence": "high",
+   "notes": "Own prices from each service page; commercial (building, storefront, garage, HOA, apartments) explicitly custom-quoted with no minimum/maximum. Roof price 'per roofing square' is verbatim; page does not state 100 sq ft per square, and sentence says 'applied to the roof's square footage' - ambiguous, treat with caution. Units 'roofing_square' and 'month' are outside the requested enum. Address on 2nd St Ste 1900 is a high-rise suite (possibly office/virtual). Page is large SEO-structured site (~30 service pages + 11 city pages) but with real own pricing. Window, deck, concrete, awning, drive-through, gas station, graffiti, post-construction, tennis, HOA, apartment, storefront, building pages had no price figures found. | Compiler: roof '$8.99 per roofing square' kept in its own unit (ambiguous on the page); excluded from $/sqft benchmarks.",
+   "sources": [
+    "https://powerwashaustin.com/",
+    "https://powerwashaustin.com/about-us/",
+    "https://powerwashaustin.com/maintenance-plans/",
+    "https://powerwashaustin.com/house-washing-austin-tx/",
+    "https://powerwashaustin.com/roof-cleaning-austin-tx/",
+    "https://powerwashaustin.com/driveway-cleaning-austin-tx/",
+    "https://powerwashaustin.com/rust-removal-austin-tx/",
+    "https://powerwashaustin.com/solar-panel-cleaning-austin-tx/",
+    "https://powerwashaustin.com/christmas-light-installation-austin-tx/",
+    "https://powerwashaustin.com/dumpster-pad-cleaning-austin-tx/",
+    "https://powerwashaustin.com/parking-lot-sweeping-and-garage-cleaning-austin-tx/",
+    "https://powerwashaustin.com/storefront-cleaning-austin-tx/",
+    "https://powerwashaustin.com/building-washing-austin-tx/",
+    "https://powerwashaustin.com/press/"
+   ],
+   "slug": "power-wash-austin",
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "slug": "pressure-washer-austin",
+   "name": "Pressure Washer Austin",
+   "website": "https://pressurewasheraustin.com/",
+   "base_city": "Austin",
+   "address": "4408 Avenue F, Austin, TX 78751",
+   "phone": "(512) 354-9637",
+   "service_area": [
+    "Austin",
+    "Round Rock",
+    "Cedar Park",
+    "Pflugerville",
+    "Georgetown",
+    "Leander",
+    "Lakeway",
+    "Bee Cave",
+    "Westlake Hills",
+    "Dripping Springs"
+   ],
+   "kind": "local",
+   "focus": "mixed",
+   "services_claimed": [
+    "deck_fence",
+    "driveway",
+    "flatwork",
+    "graffiti",
+    "gum_removal",
+    "gutter",
+    "other:apartment",
+    "other:garage_floor",
+    "other:hoa",
+    "other:oil_rust_removal",
+    "other:pool_deck",
+    "other:restaurant",
+    "parking_garage",
+    "roof",
+    "softwash_house",
+    "storefront"
+   ],
+   "services_evidenced": [],
+   "evidence_notes": "No gallery, testimonials, case studies or named clients on the two pages read; only a Trustpilot link. 0 evidenced.",
+   "prices": [
+    {
+     "service": "softwash_house",
+     "text": "House Washing Round Rock: 'starts at $400 for a standard 1,500-2,500 sq ft home'; two-story 'typically run $500-$700'",
+     "low": 400,
+     "high": 700,
+     "unit": "job",
+     "source": "https://pressurewasheraustin.com/house-washing-round-rock-tx"
+    },
+    {
+     "service": "driveway",
+     "text": "Driveway Cleaning From $140",
+     "low": 140,
+     "high": null,
+     "unit": "job",
+     "source": "https://pressurewasheraustin.com/house-washing-round-rock-tx"
+    },
+    {
+     "service": "deck_fence",
+     "text": "Deck & Patio Cleaning From $80",
+     "low": 80,
+     "high": null,
+     "unit": "job",
+     "source": "https://pressurewasheraustin.com/house-washing-round-rock-tx"
+    },
+    {
+     "service": "roof",
+     "text": "Roof Cleaning From $350",
+     "low": 350,
+     "high": null,
+     "unit": "job",
+     "source": "https://pressurewasheraustin.com/house-washing-round-rock-tx"
+    },
+    {
+     "service": "deck_fence",
+     "text": "Fence Cleaning From $150",
+     "low": 150,
+     "high": null,
+     "unit": "job",
+     "source": "https://pressurewasheraustin.com/house-washing-round-rock-tx"
+    },
+    {
+     "service": "flatwork",
+     "text": "Concrete Cleaning From $120",
+     "low": 120,
+     "high": null,
+     "unit": "job",
+     "source": "https://pressurewasheraustin.com/house-washing-round-rock-tx"
+    },
+    {
+     "service": "gutter",
+     "text": "Gutter Cleaning From $150",
+     "low": 150,
+     "high": null,
+     "unit": "job",
+     "source": "https://pressurewasheraustin.com/house-washing-round-rock-tx"
+    },
+    {
+     "service": "other:pool_deck",
+     "text": "Pool Deck Cleaning From $200",
+     "low": 200,
+     "high": null,
+     "unit": "job",
+     "source": "https://pressurewasheraustin.com/house-washing-round-rock-tx"
+    },
+    {
+     "service": "graffiti",
+     "text": "Graffiti Removal From $200",
+     "low": 200,
+     "high": null,
+     "unit": "job",
+     "source": "https://pressurewasheraustin.com/house-washing-round-rock-tx"
+    }
+   ],
+   "strategies": [
+    "Free estimates",
+    "Licensed & insured",
+    "100% money-back guarantee; pay only after approval",
+    "Same-day / next-day scheduling",
+    "Hours Mon-Sat 7-7, Sun 8-5",
+    "Commercial: custom quote, works with property managers/HOAs/business owners"
+   ],
+   "confidence": "low",
+   "notes": "Programmatic SEO site: homepage links ~75 pages of service x city combinations (house-washing-*, driveway-cleaning-*, deck-cleaning-* for Round Rock, Cedar Park, Bee Cave, Georgetown, Pflugerville...). No proof of work, no named reviews, no company/owner name. Address is in Austin 78751 but not verifiable from the site; could be an operator or a lead-gen site. Prices are own 'From' prices, plausible but unverified. Homepage extract lists commercial as 'Custom Quote' on the services page.",
+   "sources": [
+    "https://pressurewasheraustin.com/house-washing-round-rock-tx",
+    "https://pressurewasheraustin.com/"
+   ],
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "slug": "pressure-washing-round-rock",
+   "name": "Round Rock Pressure Washing",
+   "website": "https://pressurewashingroundrock.com/",
+   "base_city": "Round Rock",
+   "address": null,
+   "phone": "(512) 546-6208",
+   "service_area": [
+    "Round Rock",
+    "Cedar Park",
+    "Georgetown",
+    "Pflugerville",
+    "Leander",
+    "Hutto",
+    "North Austin"
+   ],
+   "kind": "local",
+   "focus": "mixed",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "driveway",
+    "dumpster_pad",
+    "flatwork",
+    "gutter",
+    "other:clubhouses",
+    "other:hoa",
+    "other:monument_signs",
+    "parking_garage",
+    "roof",
+    "softwash_house",
+    "storefront",
+    "window"
+   ],
+   "services_evidenced": [],
+   "evidence_notes": "No gallery, no testimonials, no named clients. About page states 'we do not post made-up reviews or photos'. Blog guides only. 0 evidenced.",
+   "prices": [],
+   "strategies": [
+    "Free firm written quote (photos, 60-second form)",
+    "7-day clean guarantee (re-clean at no charge)",
+    "Insured, COI on request",
+    "Free site walk and written proposal for HOA/commercial; one-time, seasonal or recurring",
+    "Works early morning/evenings/weekends for commercial",
+    "Bundling saves (combined quote)",
+    "Mon-Sat 7-6"
+   ],
+   "confidence": "medium",
+   "notes": "Explicitly does NOT publish prices ('We do not publish a flat price list'); pricing page lists only price drivers; HOA/commercial priced per site. Commercial page is the most detailed of this batch (sidewalks, monument signs, clubhouses, dumpster pads, storefronts, parking areas) but without proof of any such job. No street address or business name beyond 'Round Rock Pressure Washing'. Content is clean, informational, SEO-guide style.",
+   "sources": [
+    "https://pressurewashingroundrock.com/",
+    "https://pressurewashingroundrock.com/pricing/",
+    "https://pressurewashingroundrock.com/about/",
+    "https://pressurewashingroundrock.com/services/hoa-commercial-pressure-washing/",
+    "https://pressurewashingroundrock.com/contact/"
+   ],
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "slug": "round-rock-exteriors",
+   "name": "Round Rock Exteriors",
+   "website": "https://www.roundrockexteriors.com/",
+   "base_city": "Round Rock",
+   "address": null,
+   "phone": "(512) 910-7247",
+   "service_area": [
+    "Round Rock",
+    "Pflugerville",
+    "Cedar Park",
+    "Georgetown",
+    "Hutto",
+    "Leander",
+    "North Austin",
+    "Taylor"
+   ],
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "deck_fence",
+    "driveway",
+    "flatwork",
+    "gutter",
+    "roof",
+    "softwash_house",
+    "window"
+   ],
+   "services_evidenced": [
+    "driveway",
+    "flatwork",
+    "softwash_house"
+   ],
+   "evidence_notes": "Three first-name testimonials (Jennifer M. driveway; Tyler H. back patio; Sandra R. house, booked roof next). 'Before/After' section shows 3 captioned pairs (driveway, roof, deck) rendered as emoji placeholders, i.e. no real photos in the HTML. Window and gutter marked 'Coming Soon'.",
+   "prices": [
+    {
+     "service": "driveway",
+     "text": "Driveway & Concrete, Starting at $150",
+     "low": 150,
+     "high": null,
+     "unit": "job",
+     "source": "https://www.roundrockexteriors.com/"
+    },
+    {
+     "service": "softwash_house",
+     "text": "House Washing, Starting at $200",
+     "low": 200,
+     "high": null,
+     "unit": "job",
+     "source": "https://www.roundrockexteriors.com/"
+    },
+    {
+     "service": "deck_fence",
+     "text": "Wood & Composite Decks, Starting at $175",
+     "low": 175,
+     "high": null,
+     "unit": "job",
+     "source": "https://www.roundrockexteriors.com/"
+    },
+    {
+     "service": "roof",
+     "text": "Roof Soft Washing, Starting at $300",
+     "low": 300,
+     "high": null,
+     "unit": "job",
+     "source": "https://www.roundrockexteriors.com/"
+    },
+    {
+     "service": "window",
+     "text": "Window Cleaning (Coming Soon), Starting at $125",
+     "low": 125,
+     "high": null,
+     "unit": "job",
+     "source": "https://www.roundrockexteriors.com/"
+    },
+    {
+     "service": "gutter",
+     "text": "Gutter Cleaning (Coming Soon), Starting at $100",
+     "low": 100,
+     "high": null,
+     "unit": "job",
+     "source": "https://www.roundrockexteriors.com/"
+    }
+   ],
+   "strategies": [
+    "Founding Customer Offer: 30% OFF first 10 customers ('7 spots left')",
+    "Free quote, response within hours",
+    "100% satisfaction, re-clean at no charge",
+    "Fully insured",
+    "Claims 200+ jobs, 5.0 Google rating, 1-day avg response",
+    "Mon-Sat 8-6; before/after photos sent; digital payment",
+    "'Trusted since 2024'"
+   ],
+   "confidence": "low",
+   "notes": "Single-page site, copyright 2024, owner/address not published. Contradictory claims: '200+ jobs completed' vs 'first 10 customers' founding offer and 'Trusted since 2024'. Photo placeholders instead of real images. Appears new / thin operator. Window and gutter not yet offered.",
+   "sources": [
+    "https://www.roundrockexteriors.com/"
+   ],
+   "retrieved_at": "2026-11-07"
+  },
+  {
+   "slug": "capitol-exterior-services",
+   "name": "Capitol Exterior Services",
+   "website": "https://www.thumbtack.com/tx/austin/pressure-washing/capitol-city-exterior-cleaning/service/525100932123672588",
+   "base_city": "Austin",
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "building_wash",
+    "driveway",
+    "gutter",
+    "holiday_lighting",
+    "roof",
+    "solar",
+    "window"
+   ],
+   "services_evidenced": [
+    "building_wash",
+    "gutter",
+    "window"
+   ],
+   "evidence_notes": "5 Thumbtack reviews read: gutter 1, commercial 1, window 2, other 1",
+   "prices": [],
+   "strategies": [
+    "Thumbtack 5.0★ · 9 reviews · 5 hires · 2 yrs"
+   ],
+   "confidence": "medium",
+   "sources": [
+    "https://www.thumbtack.com/tx/austin/pressure-washing/capitol-city-exterior-cleaning/service/525100932123672588"
+   ],
+   "retrieved_at": "2026-11-07",
+   "notes": "Marketplace profile (Thumbtack). Listed but never mentioned in shown reviews: Roof Cleaning, Pressure Washing (driveway), Holiday Lighting Installation and Removal, Solar Panel Cleaning"
+  },
+  {
+   "slug": "hill-country-pressure-wash",
+   "name": "Hill Country Pressure Wash",
+   "website": "https://www.thumbtack.com/tx/austin/pressure-washing/hill-country-pressure-wash/service/513732874630373381",
+   "base_city": "Austin",
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "driveway",
+    "dumpster_pad",
+    "roof",
+    "softwash_house",
+    "solar",
+    "window"
+   ],
+   "services_evidenced": [
+    "driveway",
+    "softwash_house"
+   ],
+   "evidence_notes": "5 Thumbtack reviews read: house_wash 2, driveway 2, patio 3",
+   "prices": [],
+   "strategies": [
+    "Thumbtack 4.9★ · 234 reviews · 491 hires · 7 yrs",
+    "Ask about our CURRENT PROMO: $25 OFF for New Customers."
+   ],
+   "confidence": "medium",
+   "sources": [
+    "https://www.thumbtack.com/tx/austin/pressure-washing/hill-country-pressure-wash/service/513732874630373381"
+   ],
+   "retrieved_at": "2026-11-07",
+   "notes": "Marketplace profile (Thumbtack). Listed but never mentioned in shown reviews: Roof (cleaning), Window Cleaning, Solar Panel Cleaning, Commercial, Oil or grease removal, Mold or moss removal"
+  },
+  {
+   "slug": "plum-creek-exteriors",
+   "name": "Plum Creek Exteriors",
+   "website": "https://www.thumbtack.com/tx/kyle/pressure-washing/plum-creek-exteriors/service/577486636092260356",
+   "base_city": "Kyle",
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "deck_fence",
+    "driveway",
+    "gutter",
+    "holiday_lighting",
+    "roof",
+    "sealing",
+    "softwash_house",
+    "solar",
+    "window"
+   ],
+   "services_evidenced": [
+    "driveway",
+    "softwash_house",
+    "window"
+   ],
+   "evidence_notes": "6 Thumbtack reviews read: house_wash 1, driveway 1, window 5, patio 2",
+   "prices": [],
+   "strategies": [
+    "Thumbtack 5.0★ · 49 reviews · 23 hires"
+   ],
+   "confidence": "medium",
+   "sources": [
+    "https://www.thumbtack.com/tx/kyle/pressure-washing/plum-creek-exteriors/service/577486636092260356"
+   ],
+   "retrieved_at": "2026-11-07",
+   "notes": "Marketplace profile (Thumbtack). Listed but never mentioned in shown reviews: gutter cleaning, limestone cleaning, soft washing, holiday lighting, roof cleaning, solar panel cleaning, deck staining"
+  },
+  {
+   "slug": "capital-mobile-detailing-pressure-washing-services",
+   "name": "Capital Mobile Detailing & Pressure Washing Services",
+   "website": "https://www.thumbtack.com/tx/austin/pressure-washing/capital-mobile-detailing-pressure-washing-services-we-deal-in-curb-appeal/service/213281996568765629",
+   "base_city": "Austin",
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "driveway",
+    "softwash_house"
+   ],
+   "services_evidenced": [
+    "deck_fence",
+    "driveway",
+    "softwash_house"
+   ],
+   "evidence_notes": "5 Thumbtack reviews read: house_wash 2, driveway 2, fence_deck 1, patio 1, other 2",
+   "prices": [],
+   "strategies": [
+    "Thumbtack 5.0★ · 121 reviews · 159 hires · 24 yrs",
+    "$20 off to Law Enforcement",
+    "$25 off for Veterans and First Responders",
+    "$25 off for Returning Customers"
+   ],
+   "confidence": "medium",
+   "sources": [
+    "https://www.thumbtack.com/tx/austin/pressure-washing/capital-mobile-detailing-pressure-washing-services-we-deal-in-curb-appeal/service/213281996568765629"
+   ],
+   "retrieved_at": "2026-11-07",
+   "notes": "Marketplace profile (Thumbtack). Listed but never mentioned in shown reviews: Commercial, Building siding (explicit), Mold or moss removal"
+  },
+  {
+   "slug": "a-wil-pressure-washing-llc",
+   "name": "A-Wil Pressure Washing LLC",
+   "website": "https://www.thumbtack.com/tx/pflugerville/pressure-washing/wil-pressure-washing-llc/service/398976076186116100",
+   "base_city": "Pflugerville",
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "deck_fence",
+    "driveway",
+    "softwash_house"
+   ],
+   "services_evidenced": [
+    "deck_fence",
+    "driveway",
+    "softwash_house"
+   ],
+   "evidence_notes": "5 Thumbtack reviews read: house_wash 1, driveway 3, fence_deck 2, patio 1, other 1",
+   "prices": [],
+   "strategies": [
+    "Thumbtack 5.0★ · 60 reviews · 79 hires · 7 yrs"
+   ],
+   "confidence": "medium",
+   "sources": [
+    "https://www.thumbtack.com/tx/pflugerville/pressure-washing/wil-pressure-washing-llc/service/398976076186116100"
+   ],
+   "retrieved_at": "2026-11-07",
+   "notes": "Marketplace profile (Thumbtack). Listed but never mentioned in shown reviews: junk removal listed and reviewed once; no unreviewed pressure-washing service listed"
+  },
+  {
+   "slug": "flower-powerwash",
+   "name": "Flower Powerwash",
+   "website": "https://www.thumbtack.com/tx/austin/pressure-washing/flower-powerwash/service/467278990935719947",
+   "base_city": "Austin",
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "building_wash",
+    "deck_fence",
+    "driveway",
+    "flatwork",
+    "gutter",
+    "roof",
+    "sealing",
+    "softwash_house",
+    "window"
+   ],
+   "services_evidenced": [
+    "deck_fence",
+    "driveway",
+    "softwash_house"
+   ],
+   "evidence_notes": "5 Thumbtack reviews read: house_wash 1, driveway 3, fence_deck 1, patio 2, other 1",
+   "prices": [
+    {
+     "service": "flatwork",
+     "text": "Flatwork is prices at 15 cents per sq ft",
+     "low": 0.15,
+     "high": null,
+     "unit": "sqft",
+     "source": "https://www.thumbtack.com/tx/austin/pressure-washing/flower-powerwash/service/467278990935719947"
+    }
+   ],
+   "strategies": [
+    "Thumbtack 5.0★ · 48 reviews · 67 hires · 4 yrs",
+    "Siding and roofs are variable - based on single/double story and size."
+   ],
+   "confidence": "medium",
+   "sources": [
+    "https://www.thumbtack.com/tx/austin/pressure-washing/flower-powerwash/service/467278990935719947"
+   ],
+   "retrieved_at": "2026-11-07",
+   "notes": "Marketplace profile (Thumbtack). Listed but never mentioned in shown reviews: window cleaning, roof cleaning, gutter cleaning, commercial cleaning, epoxy, masonry, algae/mold removal"
+  },
+  {
+   "slug": "everclean-exterior-cleaning",
+   "name": "EverClean Exterior Cleaning",
+   "website": "https://www.thumbtack.com/tx/georgetown/pressure-washing/everclean-exterior-cleaning/service/225326979079922935",
+   "base_city": "Georgetown",
+   "kind": "local",
+   "focus": "residential",
+   "services_claimed": [
+    "driveway",
+    "gutter",
+    "roof",
+    "softwash_house",
+    "solar",
+    "window"
+   ],
+   "services_evidenced": [
+    "driveway",
+    "gutter",
+    "window"
+   ],
+   "evidence_notes": "5 Thumbtack reviews read: driveway 2, gutter 3, window 1, patio 1",
+   "prices": [],
+   "strategies": [
+    "Thumbtack 4.8★ · 40 reviews · 60 hires · 14 yrs"
+   ],
+   "confidence": "medium",
+   "sources": [
+    "https://www.thumbtack.com/tx/georgetown/pressure-washing/everclean-exterior-cleaning/service/225326979079922935"
+   ],
+   "retrieved_at": "2026-11-07",
+   "notes": "Marketplace profile (Thumbtack). Listed but never mentioned in shown reviews: roof cleaning, solar panel cleaning, soft wash of stone/stucco/siding/brick"
+  }
+ ]
+}

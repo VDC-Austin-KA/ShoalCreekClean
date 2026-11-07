@@ -26,9 +26,10 @@ async function loadCompetitors() {
   await db.query("DELETE FROM map_markers WHERE layer IN ('competitor','pricing')");
   for (const c of list) {
     // City-level placement (street addresses are rarely published) with a stable per-company offset so pins don't stack.
-    const [clat, clng] = CITY_COORDS[c.base_city] ?? CITY_COORDS.Austin;
+    const coords = CITY_COORDS[c.base_city]; // null for out-of-market HQs (e.g. national lead-gen sites) → no map pin
+    const [clat, clng] = coords ?? CITY_COORDS.Austin;
     const h = [...c.slug].reduce((a: number, ch: string) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
-    const lat = clat + ((h % 100) - 50) / 2500, lng = clng + (((h >> 8) % 100) - 50) / 2500;
+    const lat = coords ? clat + ((h % 100) - 50) / 2500 : null, lng = coords ? clng + (((h >> 8) % 100) - 50) / 2500 : null;
     await db.query(
       `INSERT INTO competitors (slug,name,website,base_city,lat,lng,location_precision,kind,focus,services_claimed,services_evidenced,prices,strategies,confidence,notes,sources,retrieved_at)
        VALUES ($1,$2,$3,$4,$5,$6,'city',$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
@@ -37,6 +38,7 @@ async function loadCompetitors() {
          prices=EXCLUDED.prices, strategies=EXCLUDED.strategies, confidence=EXCLUDED.confidence, notes=EXCLUDED.notes, sources=EXCLUDED.sources, retrieved_at=EXCLUDED.retrieved_at`,
       [c.slug, c.name, c.website, c.base_city, lat, lng, c.kind ?? "local", c.focus ?? "mixed", c.services_claimed ?? [], c.services_evidenced ?? [],
        JSON.stringify(c.prices ?? []), c.strategies ?? [], c.confidence ?? "medium", c.notes ?? null, c.sources ?? [], c.retrieved_at ?? new Date().toISOString().slice(0, 10)]);
+    if (!coords) continue;
     await db.query("INSERT INTO map_markers (layer,label,lat,lng,radius_m,value,notes) VALUES ('competitor',$1,$2,$3,1800,$4,$5)",
       [c.name, lat, lng, (c.services_claimed ?? []).length,
        `${c.focus} · ${c.base_city ?? "base city not published"} · claims ${(c.services_claimed ?? []).length} services, work evidence for ${(c.services_evidenced ?? []).length}`]);
