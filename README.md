@@ -67,7 +67,7 @@ BASE=http://localhost:8787 NODE_PATH=$(npm root -g) node tests/e2e.mjs [screensh
 
 ## Deploy to `wash.ackerworks.com` (Cloudflare Workers + D1)
 
-**Live:** https://wash.ackerworks.com runs on Cloudflare Workers (free plan) with the D1 database `shoalcreek`. `SESSION_SECRET` is already set as a Worker secret.
+**Live:** https://wash.ackerworks.com (also https://clean.ackerworks.com and https://shoalcreek-clean.katx.workers.dev) runs on Cloudflare Workers (free plan) with the D1 database `shoalcreek`. `SESSION_SECRET` is already set as a Worker secret.
 
 **Redeploy after changes:** `npm run cf:deploy:embedded`. This build bundles the static files into the Worker script (see `wrangler.embedded.jsonc` and `cloudflare/embedded-entry.mjs`), so it works from any machine, including sandboxes and CI behind proxies. Apply schema changes with `npm run db:setup -- --remote`.
 
