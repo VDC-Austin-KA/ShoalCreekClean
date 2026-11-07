@@ -22,5 +22,5 @@ export const SERVICES = [
 export const CITIES = ["Austin", "Round Rock", "Pflugerville", "Cedar Park", "Leander", "Georgetown", "Hutto", "Buda", "Kyle"];
 export const CITY_COORDS: Record<string, [number, number]> = {
   Austin: [30.2672, -97.7431], "Round Rock": [30.5083, -97.6789], Pflugerville: [30.4394, -97.62], "Cedar Park": [30.5052, -97.8203],
-  Leander: [30.5788, -97.8531], Georgetown: [30.6333, -97.677], Hutto: [30.5427, -97.5467], Buda: [30.0852, -97.8403], Kyle: [29.9891, -97.8772],
+  Leander: [30.5788, -97.8531], "Del Valle": [30.1935, -97.6141], Georgetown: [30.6333, -97.677], Hutto: [30.5427, -97.5467], Buda: [30.0852, -97.8403], Kyle: [29.9891, -97.8772],
 };

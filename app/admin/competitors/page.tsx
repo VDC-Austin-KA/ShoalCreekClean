@@ -11,13 +11,15 @@ const CONF: Record<string, string> = { high: "paid", medium: "open", low: "faile
 
 export default async function Competitors() {
   const [comps, quotes, rules] = await Promise.all([
-    q<Competitor & any>("SELECT * FROM competitors ORDER BY confidence, name"),
+    q<Competitor & any>("SELECT * FROM competitors ORDER BY array_position(ARRAY['high','medium','low'], confidence), name"),
     q("SELECT * FROM market_quotes ORDER BY created_at DESC LIMIT 100"),
     loadRules(),
   ]);
   if (!comps.length) return <Empty>No competitor research loaded. Run <code>npm run db:setup</code> to import data/competitors.json.</Empty>;
   const extra = quotes.map((m) => ({ service: m.service, competitor: `${m.competitor} (${m.source})`, perUnit: m.quantity ? +(m.amount_cents / 100 / Number(m.quantity)).toFixed(3) : undefined, amount: m.quantity ? undefined : m.amount_cents / 100 }));
-  const bench = rules.map((r) => ({ r, b: benchmark(r.service, r.unit, comps, extra) }));
+  // Low-confidence sources (lead-gen marketplaces, SEO doorway sites, self-contradicting claims) are shown but not benchmarked.
+  const trusted = comps.filter((c) => c.confidence !== "low");
+  const bench = rules.map((r) => ({ r, b: benchmark(r.service, r.unit, trusted, extra) }));
   const retrieved = comps.map((c) => c.retrieved_at).sort().at(-1);
   return (
     <div className="space-y-6">
@@ -42,7 +44,7 @@ export default async function Competitors() {
             })}
           </tbody>
         </table></div>
-        <p className="mt-3 text-xs text-slate-500">Only prices a company publishes itself (or quotes logged below) are counted; blog “industry average” figures are excluded. Most commercial operators publish no prices — commercial benchmarks need logged quotes.</p>
+        <p className="mt-3 text-xs text-slate-500">Only prices a company publishes itself (or quotes logged below) are counted, from {trusted.length} medium/high-confidence sources; blog “industry average” figures and low-confidence sites are excluded. Most commercial operators publish no prices — commercial benchmarks need logged quotes.</p>
       </Card>
 
       <Card title="Services claimed vs. evidenced">
