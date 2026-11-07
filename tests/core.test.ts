@@ -64,3 +64,21 @@ test("strategy generator tailors by segment", () => {
   assert.match(s.email.subject, /Pollen/);
   assert.match(s.decisionMaker, /HOA/);
 });
+
+import { benchmark, position, sayDoGap } from "../lib/market.ts";
+const comps = [
+  { slug: "a", name: "A", services_claimed: ["driveway", "roof", "gutter"], services_evidenced: ["driveway"], prices: [{ service: "driveway", low: 0.2, high: null, unit: "sqft" }, { service: "driveway", low: 150, high: null, unit: "job" }] },
+  { slug: "b", name: "B", services_claimed: ["driveway"], services_evidenced: ["driveway"], prices: [{ service: "driveway", low: 0.25, high: 0.35, unit: "sqft" }] },
+];
+test("market benchmark separates per-unit from job minimums", () => {
+  const b = benchmark("driveway", "sqft", comps);
+  assert.deepEqual(b.perUnit, { low: 0.2, median: 0.25, high: 0.3, n: 2 });
+  assert.equal(b.jobMinimums?.low, 150);
+  assert.equal(position(0.22, b.perUnit), "under median");
+  assert.equal(position(0.4, b.perUnit), "above market");
+});
+test("logged quotes feed the benchmark", () => {
+  const b = benchmark("softwash", "sqft", [], [{ service: "softwash_house", perUnit: 0.2, competitor: "X" }]);
+  assert.equal(b.perUnit?.n, 1);
+});
+test("say/do gap", () => assert.equal(Math.round(sayDoGap(comps[0]) * 100), 67));

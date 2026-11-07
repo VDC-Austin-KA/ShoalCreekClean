@@ -12,6 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       { href: "/admin/map", label: "Coverage map", icon: "⌖" },
       { href: "/admin/crm", label: "CRM pipeline", icon: "◧" },
       { href: "/admin/campaigns", label: "Email campaigns", icon: "✉" },
+      { href: "/admin/competitors", label: "Competitor intel", icon: "◐" },
       { href: "/admin/strategy", label: "Strategy generator", icon: "✦" },
       { href: "/admin/pricing", label: "Price book", icon: "$" },
       { href: "/admin/outbox", label: "Outbox", icon: "⇪" },

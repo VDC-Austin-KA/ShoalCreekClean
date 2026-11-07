@@ -1,6 +1,7 @@
 // Usage: node scripts/db-setup.ts [--seed]   (Node >= 22.18 strips TS types natively)
 // Applies db/schema.sql; with --seed, wipes and loads alpha-test data.
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
+import { CITY_COORDS } from "../lib/content.ts";
 import pg from "pg";
 import bcrypt from "bcryptjs";
 import { DEFAULT_RULES } from "../lib/pricing.ts";
@@ -17,9 +18,38 @@ for (const r of DEFAULT_RULES)
     [r.service, r.label, r.unit, r.rate, r.min_cents, r.production_per_hour, r.equipment, r.phase, r.description],
   );
 
-if (!process.argv.includes("--seed")) { await db.end(); process.exit(0); }
+/** Loads sourced competitor research (data/competitors.json) into `competitors` + derived map layers. Idempotent. */
+async function loadCompetitors() {
+  const file = new URL("../data/competitors.json", import.meta.url);
+  if (!existsSync(file)) return;
+  const list: any[] = JSON.parse(readFileSync(file, "utf8")).competitors;
+  await db.query("DELETE FROM map_markers WHERE layer IN ('competitor','pricing')");
+  for (const c of list) {
+    // City-level placement (street addresses are rarely published) with a stable per-company offset so pins don't stack.
+    const [clat, clng] = CITY_COORDS[c.base_city] ?? CITY_COORDS.Austin;
+    const h = [...c.slug].reduce((a: number, ch: string) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
+    const lat = clat + ((h % 100) - 50) / 2500, lng = clng + (((h >> 8) % 100) - 50) / 2500;
+    await db.query(
+      `INSERT INTO competitors (slug,name,website,base_city,lat,lng,location_precision,kind,focus,services_claimed,services_evidenced,prices,strategies,confidence,notes,sources,retrieved_at)
+       VALUES ($1,$2,$3,$4,$5,$6,'city',$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+       ON CONFLICT (slug) DO UPDATE SET name=EXCLUDED.name, website=EXCLUDED.website, base_city=EXCLUDED.base_city, lat=EXCLUDED.lat, lng=EXCLUDED.lng,
+         kind=EXCLUDED.kind, focus=EXCLUDED.focus, services_claimed=EXCLUDED.services_claimed, services_evidenced=EXCLUDED.services_evidenced,
+         prices=EXCLUDED.prices, strategies=EXCLUDED.strategies, confidence=EXCLUDED.confidence, notes=EXCLUDED.notes, sources=EXCLUDED.sources, retrieved_at=EXCLUDED.retrieved_at`,
+      [c.slug, c.name, c.website, c.base_city, lat, lng, c.kind ?? "local", c.focus ?? "mixed", c.services_claimed ?? [], c.services_evidenced ?? [],
+       JSON.stringify(c.prices ?? []), c.strategies ?? [], c.confidence ?? "medium", c.notes ?? null, c.sources ?? [], c.retrieved_at ?? new Date().toISOString().slice(0, 10)]);
+    await db.query("INSERT INTO map_markers (layer,label,lat,lng,radius_m,value,notes) VALUES ('competitor',$1,$2,$3,1800,$4,$5)",
+      [c.name, lat, lng, (c.services_claimed ?? []).length,
+       `${c.focus} · ${c.base_city ?? "base city not published"} · claims ${(c.services_claimed ?? []).length} services, work evidence for ${(c.services_evidenced ?? []).length}`]);
+    for (const p of (c.prices ?? []).filter((p: any) => p.unit === "sqft" && p.low))
+      await db.query("INSERT INTO map_markers (layer,label,lat,lng,radius_m,value,notes) VALUES ('pricing',$1,$2,$3,3500,$4,$5)",
+        [`${c.name}: $${p.low}/sqft ${p.service}`, lat, lng, p.low, p.text]);
+  }
+  console.log(`competitors loaded: ${list.length}`);
+}
 
-await db.query(`TRUNCATE email_outbox, campaigns, map_markers, service_zones, payment_methods, invoices, job_photos, jobs, quotes, leads, crew_members, crews, clients, magic_links, users RESTART IDENTITY CASCADE`);
+if (!process.argv.includes("--seed")) { await loadCompetitors(); await db.end(); process.exit(0); }
+
+await db.query(`TRUNCATE market_quotes, competitors, email_outbox, campaigns, map_markers, service_zones, payment_methods, invoices, job_photos, jobs, quotes, leads, crew_members, crews, clients, magic_links, users RESTART IDENTITY CASCADE`);
 const hash = await bcrypt.hash("alpha2026!", 10);
 const ins = async (sql: string, p: unknown[]) => (await db.query(sql + " RETURNING id", p)).rows[0].id as string;
 const user = (email: string, name: string, role: string, phone = "512-555-0100") =>
@@ -133,12 +163,8 @@ const Z: [string, string, number, number[][], string][] = [
 for (const [name, color, phase, poly, notes] of Z)
   await db.query("INSERT INTO service_zones (name,color,phase,polygon,notes) VALUES ($1,$2,$3,$4,$5)", [name, color, phase, JSON.stringify(poly), notes]);
 
-// --- Map intelligence (anonymized placeholders — replace with field research)
+// --- Map intelligence: commercial corridors (hotspots). Competitor + pricing layers come from data/competitors.json.
 const M: [string, string, number, number, number, number, string][] = [
-  ["competitor", "Regional vendor cluster A", 30.39, -97.73, 4000, 3, "Est. 3 operators; commercial focus"],
-  ["competitor", "Franchise operator B", 30.50, -97.68, 3500, 2, "Residential-heavy, weekend availability"],
-  ["competitor", "Owner-operator cluster C", 30.25, -97.76, 3000, 4, "Low price, no after-hours"],
-  ["competitor", "Regional vendor D", 30.47, -97.82, 3000, 1, "HOA contracts"],
   ["hotspot", "Domain / North Burnet retail + office", 30.4021, -97.7253, 2200, 0.95, "High-density Class A retail"],
   ["hotspot", "Downtown CBD", 30.2672, -97.7431, 2000, 0.9, "Office towers, plazas, garages"],
   ["hotspot", "I-35 Round Rock retail corridor", 30.4846, -97.6747, 2600, 0.85, "Big-box + strip centers"],
@@ -146,11 +172,9 @@ const M: [string, string, number, number, number, number, string][] = [
   ["hotspot", "183A Cedar Park commercial", 30.4836, -97.8302, 2200, 0.7, "Strip centers, restaurants"],
   ["hotspot", "SH-130 Pflugerville growth", 30.4560, -97.6100, 2400, 0.6, "New retail + multifamily"],
   ["hotspot", "South Lamar / SoCo", 30.2465, -97.7600, 1800, 0.8, "Restaurants + storefronts"],
-  ["pricing", "Avg flatwork $0.22/sqft", 30.30, -97.75, 6000, 0.22, "Benchmark estimate"],
-  ["pricing", "Avg flatwork $0.17/sqft", 30.49, -97.68, 6000, 0.17, "Benchmark estimate"],
-  ["pricing", "Avg flatwork $0.19/sqft", 30.49, -97.82, 5000, 0.19, "Benchmark estimate"],
 ];
 for (const m of M) await db.query("INSERT INTO map_markers (layer,label,lat,lng,radius_m,value,notes) VALUES ($1,$2,$3,$4,$5,$6,$7)", m);
+await loadCompetitors();
 
 // --- Campaigns
 await db.query(`INSERT INTO campaigns (name,subject,body,audience,status,recipient_count,sent_at) VALUES

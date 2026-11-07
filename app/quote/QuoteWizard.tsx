@@ -17,7 +17,7 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
     property: (initialType === "commercial" ? "commercial" : "residential") as QuoteInput["property"],
     segment: initialType === "commercial" ? "storefront" : "residential",
     city: "Austin", address: "", company: "", name: "", email: "", phone: "", notes: "",
-    stories: "1" as QuoteInput["stories"], soil: "moderate" as QuoteInput["soil"], frequency: "one_time" as QuoteInput["frequency"], afterHours: false, manualReview: false,
+    stories: "1" as QuoteInput["stories"], soil: "moderate" as QuoteInput["soil"], frequency: "one_time" as QuoteInput["frequency"], afterHours: false, manualReview: false, competitor: "", competitorPrice: "",
   });
   const [items, setItems] = useState<Item[]>([{ service: initialType === "commercial" ? "flatwork" : "driveway", quantity: 1500, surface: "concrete" }]);
   const [done, setDone] = useState<(QuoteResult & { id: string }) | null>(null);
@@ -131,6 +131,14 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
                 {f.property === "commercial" && <div><label className="label">Company</label><input className="input" value={f.company} onChange={(e) => set("company", e.target.value)} /></div>}
               </div>
               <div><label className="label">Notes</label><textarea className="input min-h-20" value={f.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Access, gate codes, problem areas…" /></div>
+              <div className="rounded-xl border border-accent-2/20 bg-accent-2/5 p-4">
+                <div className="text-sm font-medium text-accent-2">Have a quote from another company? We&apos;ll try to beat it.</div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <input className="input" placeholder="Company name" value={f.competitor} onChange={(e) => set("competitor", e.target.value)} />
+                  <input className="input" placeholder="Their price $" inputMode="decimal" value={f.competitorPrice} onChange={(e) => set("competitorPrice", e.target.value)} />
+                </div>
+                <p className="mt-2 text-[11px] text-slate-500">Optional. A partner reviews every price-match request.</p>
+              </div>
               <label className="flex items-center gap-3 text-sm text-slate-300"><input type="checkbox" className="size-4 accent-cyan-400" checked={f.manualReview} onChange={(e) => set("manualReview", e.target.checked)} /> I&apos;d like a partner to review on-site before booking</label>
             </div>
           )}
