@@ -1,0 +1,21 @@
+// Same Worker as wrangler.jsonc, but static files are embedded in the script (cloudflare/embedded-entry.mjs)
+// instead of uploaded as Workers Static Assets. Used by `npm run cf:deploy:embedded`, which works from
+// environments whose network proxy rewrites the Authorization header (the assets upload needs its own JWT).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shoalcreek-clean",
+  "main": "cloudflare/embedded-entry.mjs",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "account_id": "1a08662719e83ad25376ff159ac70027",
+  "routes": [{ "pattern": "wash.ackerworks.com", "custom_domain": true }],
+  "d1_databases": [
+    { "binding": "DB", "database_name": "shoalcreek", "database_id": "5193dd2e-ae00-4ed5-8cbe-964bbc9d6997", "migrations_dir": "db" }
+  ],
+  "vars": {
+    "APP_URL": "https://wash.ackerworks.com",
+    "ALPHA_MODE": "true",
+    "MAIL_FROM": "Shoal Creek Clean <hello@ackerworks.com>"
+  },
+  "observability": { "enabled": true }
+}

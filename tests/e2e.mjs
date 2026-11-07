@@ -60,8 +60,12 @@ await step("quote wizard → instant estimate → book", async () => {
   await p.context().close();
 });
 await step("large quote routes to manual review", async () => {
-  const r = await fetch(`${BASE}/api/quote`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: "Big Co", email: "big@example.com", property: "commercial", stories: "1", soil: "heavy", frequency: "one_time", items: [{ service: "flatwork", quantity: 80000, surface: "concrete" }] }) });
-  const d = await r.json();
+  // Sent from inside the page (browser network stack, honors proxies) — Node-side fetch can't reach external hosts in some sandboxes.
+  const p = await session();
+  await p.goto(BASE);
+  const d = await p.evaluate(() => fetch("/api/quote", { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ name: "Big Co", email: "big@example.com", property: "commercial", stories: "1", soil: "heavy", frequency: "one_time", items: [{ service: "flatwork", quantity: 80000, surface: "concrete" }] }) }).then((r) => r.json()));
+  await p.context().close();
   if (!d.needs_review) throw new Error("expected review");
 });
 

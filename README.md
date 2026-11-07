@@ -67,9 +67,13 @@ BASE=http://localhost:8787 NODE_PATH=$(npm root -g) node tests/e2e.mjs [screensh
 
 ## Deploy to `wash.ackerworks.com` (Cloudflare Workers + D1)
 
-**Automatic:** `.github/workflows/deploy.yml` deploys on every push to `main`. It needs the repository secret `CLOUDFLARE_API_TOKEN`, a token with Workers Scripts Edit, D1 Edit and Account Settings Read, plus Workers Routes Edit, DNS Edit and Zone Read on the `ackerworks.com` zone. The free Workers plan has handled cost-10 bcrypt logins in testing.
+**Live:** https://wash.ackerworks.com runs on Cloudflare Workers (free plan) with the D1 database `shoalcreek`. `SESSION_SECRET` is already set as a Worker secret.
 
-**Manual** (from a normal machine; asset uploads fail from proxied sandboxes):
+**Redeploy after changes:** `npm run cf:deploy:embedded`. This build bundles the static files into the Worker script (see `wrangler.embedded.jsonc` and `cloudflare/embedded-entry.mjs`), so it works from any machine, including sandboxes and CI behind proxies. Apply schema changes with `npm run db:setup -- --remote`.
+
+**Optional auto-deploy:** connect the repo in Cloudflare (Workers & Pages → shoalcreek-clean → Settings → Build) with build command `npx opennextjs-cloudflare build`, deploy command `npx opennextjs-cloudflare deploy`, and `NODE_VERSION=22`. GitHub Actions is not used.
+
+**First-time setup** (already done for wash.ackerworks.com):
 
 ```bash
 npx wrangler d1 create shoalcreek            # paste the database_id into wrangler.jsonc
