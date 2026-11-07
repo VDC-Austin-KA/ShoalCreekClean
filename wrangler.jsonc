@@ -1,0 +1,25 @@
+// Cloudflare Workers deployment (OpenNext). Deploy: npm run cf:deploy
+// Secrets (set once with `wrangler secret put <NAME>`): SESSION_SECRET, SETUP_TOKEN, optional STRIPE_SECRET_KEY, SMTP_URL.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shoalcreek-clean",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "account_id": "1a08662719e83ad25376ff159ac70027",
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "routes": [{ "pattern": "wash.ackerworks.com", "custom_domain": true }],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "REPLACE_WITH_HYPERDRIVE_ID",
+      "localConnectionString": "postgres://postgres:postgres@localhost:5432/shoalcreek"
+    }
+  ],
+  "vars": {
+    "APP_URL": "https://wash.ackerworks.com",
+    "ALPHA_MODE": "true",
+    "MAIL_FROM": "Shoal Creek Clean <hello@ackerworks.com>"
+  },
+  "observability": { "enabled": true }
+}
