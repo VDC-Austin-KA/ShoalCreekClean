@@ -7,7 +7,7 @@ export const COMPARABLE: Record<string, string[]> = {
   flatwork: ["flatwork", "parking_garage", "dumpster_pad"],
   storefront: ["storefront", "building_wash"],
   driveway: ["driveway"],
-  softwash: ["softwash_house", "building_wash"],
+  softwash: ["softwash_house"],
   roof: ["roof"],
   gutter: ["gutter"],
   sealing: ["sealing"],

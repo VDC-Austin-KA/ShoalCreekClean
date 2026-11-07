@@ -22,6 +22,10 @@ Strategy docs: [`docs/MARKET_STRATEGY.md`](docs/MARKET_STRATEGY.md) covers segme
 - **Campaigns**: email composer with merge tags, audience segments and a live preview. Every email goes to the Outbox. Emails are simulated unless `SMTP_URL` is set.
 - **Strategy generator** (`lib/strategy.ts`): takes segment, account size, city and season and produces an angle, an offer, a 17-day cadence, an email template, a call opener, objection handling and collateral. One click turns the output into a campaign.
 - **Price book**: partners can edit rates, minimums and production rates without a deploy.
+- **Competitor intel** (`/admin/competitors`, `data/competitors.json`, [`docs/COMPETITOR_INTEL.md`](docs/COMPETITOR_INTEL.md)): 23 real Central Texas operators, with every price sourced and verified verbatim. The page shows:
+  - services claimed vs. services with evidence of actual work, as a say/do gap
+  - our price book against published market prices
+  - real-time quotes captured from the quote form's price-match field and logged by partners
 
 ## Stack
 
@@ -74,5 +78,6 @@ Before a public launch:
 - Set `ALPHA_MODE=false`. This hides the demo logins and stops returning magic links in API responses.
 - Add `STRIPE_SECRET_KEY` and a Stripe webhook. Replace the simulated saved methods with SetupIntents.
 - Set `SMTP_URL`.
-- Replace the placeholder testimonials and credentials in `lib/content.ts` and the anonymized competitor and pricing map layers with real field research.
+- Replace the placeholder testimonials and credentials in `lib/content.ts`.
+- Re-run the competitor research quarterly (see `docs/COMPETITOR_INTEL.md` §6).
 - Validate the price book with secret-shop calls (see the strategy doc).

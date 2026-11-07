@@ -167,7 +167,9 @@ These are planning targets. Revisit them after six months of actuals.
 
 ### 4.1 Market ranges
 
-**Industry benchmark estimates. Validate with 10+ secret-shop quote calls before launch.**
+> **Superseded by real data:** see [`COMPETITOR_INTEL.md`](COMPETITOR_INTEL.md) for prices published by 23 named Central Texas operators (retrieved 2026-11-07, every figure sourced). Where the two differ, the intel doc wins. The ranges below are kept as context only.
+
+**Industry benchmark estimates.**
 
 These ranges are directional estimates from general industry knowledge. They are not drawn from a survey or from current Austin-metro quotes. Confirm every figure with at least 10 secret-shop quote calls (a mix of property managers, HOAs, restaurants, and storefronts) before the price book is final.
 
@@ -301,7 +303,7 @@ A 1,800 sq ft commercial sidewalk and dumpster pad job is $324 at $0.18 per sq f
 
 Assumes all three partners are full time and one lead tech is hired before Week 3.
 
-- **Week 1 (foundations):** Confirm entity, bank account, and partner roles (sales, operations, finance). Verify the price book against the engine. Start 10 secret-shop quote calls. Draft the vendor packet.
+- **Week 1 (foundations):** Confirm entity, bank account, and partner roles (sales, operations, finance). Verify the price book against the engine and the published market prices in COMPETITOR_INTEL.md. Start logging real commercial quotes (see COMPETITOR_INTEL.md §6). Draft the vendor packet.
 - **Week 2 (insurance and compliance):** Request quotes for GL, commercial auto, and workers comp. Contact the City of Austin Watershed Protection Department on wash-water rules. Confirm sales-tax treatment with the Texas Comptroller.
 - **Week 3 (crew and equipment):** Hire and onboard the lead tech; complete chemical handling and fall-protection training. Acquire two pressure washers and one water recovery setup. Configure scheduling and work orders with photo capture.
 - **Week 4 (digital presence):** Launch the website with the instant estimator for flatwork and storefront work. Complete the Google Business Profile for each market. Open the client portal.

@@ -9,9 +9,13 @@
     "db:setup": "node scripts/db-setup.ts",
     "db:seed": "node scripts/db-setup.ts --seed",
     "test": "node --test tests/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "^1.20.16",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.15",
     "leaflet": "^1.9.4",
@@ -31,7 +35,8 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "tailwindcss": "^4.3.5",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.158.0"
   },
   "type": "module"
 }
