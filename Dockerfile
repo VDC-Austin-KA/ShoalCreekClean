@@ -20,7 +20,8 @@ COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 COPY --from=build /app/db ./db
 COPY --from=build /app/scripts ./scripts
-COPY --from=build /app/lib/pricing.ts ./lib/pricing.ts
+COPY --from=build /app/lib/pricing.ts /app/lib/content.ts ./lib/
+COPY --from=build /app/data ./data
 COPY --from=build /app/node_modules/bcryptjs ./node_modules/bcryptjs
 USER app
 EXPOSE 3000

@@ -58,7 +58,7 @@ export default function OpsMap({ data }: { data: Data }) {
       const color = mk.layer === "competitor" ? "#fb7185" : mk.layer === "hotspot" ? "#fbbf24" : "#a78bfa";
       const opacity = mk.layer === "hotspot" ? 0.12 + mk.value * 0.25 : mk.layer === "pricing" ? 0.08 + (mk.value - 0.15) * 3 : 0.15;
       L.circle([mk.lat, mk.lng], { interactive: mode !== "draw", radius: mk.radius_m, color, weight: mk.layer === "competitor" ? 1 : 0, fillColor: color, fillOpacity: opacity })
-        .bindPopup(`<b>${esc(mk.label)}</b><br/><small>${esc(mk.notes ?? "")}${mk.layer === "competitor" ? `<br/>Est. operators: ${mk.value}` : ""}</small>`)
+        .bindPopup(`<b>${esc(mk.label)}</b><br/><small>${esc(mk.notes ?? "")}${mk.layer === "competitor" ? `<br/><a href=\"/admin/competitors\" style=\"color:#22d3ee\">Competitor profile →</a>` : ""}</small>`)
         .addTo(g[mk.layer]);
     }
     for (const j of data.jobs) {
@@ -133,7 +133,7 @@ export default function OpsMap({ data }: { data: Data }) {
           {(Object.keys(LAYERS) as LayerKey[]).map((k) => (
             <label key={k} className="flex items-center gap-2 py-1 text-sm text-slate-300"><input type="checkbox" className="accent-cyan-400" checked={on[k]} onChange={(e) => setOn({ ...on, [k]: e.target.checked })} />{LAYERS[k]}</label>
           ))}
-          <p className="mt-2 text-[11px] text-slate-600">Competitor/pricing layers are anonymized placeholders — replace with field research.</p>
+          <p className="mt-2 text-[11px] text-slate-600">Competitor + pricing layers come from sourced public research (city-level placement). See Competitor intel.</p>
         </div>
         <div className="glass p-4">
           <div className="mb-3 grid grid-cols-3 rounded-xl bg-ink-900 p-1 text-xs">

@@ -206,3 +206,40 @@ CREATE TABLE IF NOT EXISTS email_outbox (
   created_at  timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS outbox_created_idx ON email_outbox (created_at DESC);
+
+-- Real competitor intelligence (seeded from data/competitors.json; every fact carries a source URL).
+CREATE TABLE IF NOT EXISTS competitors (
+  id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug               text UNIQUE NOT NULL,
+  name               text NOT NULL,
+  website            text,
+  base_city          text,
+  lat                double precision,
+  lng                double precision,
+  location_precision text NOT NULL DEFAULT 'city',   -- address | city
+  kind               text NOT NULL DEFAULT 'local',  -- local | franchise | national | marketplace
+  focus              text NOT NULL DEFAULT 'mixed',  -- commercial | residential | mixed
+  services_claimed   text[] NOT NULL DEFAULT '{}',
+  services_evidenced text[] NOT NULL DEFAULT '{}',   -- shown in galleries, case studies or third-party reviews
+  prices             jsonb NOT NULL DEFAULT '[]',    -- [{service, text, low, high, unit, source}]
+  strategies         text[] NOT NULL DEFAULT '{}',
+  confidence         text NOT NULL DEFAULT 'medium', -- high | medium | low
+  notes              text,
+  sources            text[] NOT NULL DEFAULT '{}',
+  retrieved_at       date NOT NULL DEFAULT current_date
+);
+
+-- Competitor quotes shared voluntarily by prospects (price-match offer) or logged by partners.
+CREATE TABLE IF NOT EXISTS market_quotes (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  competitor    text NOT NULL,
+  service       text NOT NULL,
+  quantity      numeric,
+  unit          text,
+  amount_cents  int NOT NULL,
+  city          text,
+  source        text NOT NULL DEFAULT 'prospect', -- prospect | partner | public
+  lead_id       uuid REFERENCES leads(id) ON DELETE SET NULL,
+  notes         text,
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
