@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS leads (
   id          TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
   name        TEXT NOT NULL,
   company     TEXT,
-  email       TEXT NOT NULL,
+  email       TEXT,            -- nullable: researched leads often have only a published phone
   phone       TEXT,
   segment     TEXT NOT NULL DEFAULT 'residential',
   city        TEXT,
@@ -237,3 +237,46 @@ CREATE TABLE IF NOT EXISTS market_quotes (
   notes        TEXT,
   created_at   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
+
+-- Lead research produced by the external lead finder (leadfinder/ Worker). One row per lead; every
+-- contact field is public business information with the URL it was found on.
+CREATE TABLE IF NOT EXISTS lead_intel (
+  lead_id      TEXT PRIMARY KEY REFERENCES leads(id) ON DELETE CASCADE,
+  dedupe_key   TEXT UNIQUE,            -- website domain or normalized name|city
+  website      TEXT,
+  emails       TEXT NOT NULL DEFAULT '[]',   -- [{value, source}] published addresses only
+  phones       TEXT NOT NULL DEFAULT '[]',   -- [{value, source}]
+  people       TEXT NOT NULL DEFAULT '[]',   -- [{name, title, source}] named on the business's own site
+  company_info TEXT NOT NULL DEFAULT '{}',   -- {category, description, address, hours, osm_id, socials}
+  origin       TEXT NOT NULL,                -- osm | competitor-site | manual
+  origin_url   TEXT,
+  competitor   TEXT,                         -- competitor whose public testimonial/case study named this business
+  fit_score    INTEGER NOT NULL DEFAULT 0,
+  fit_reasons  TEXT NOT NULL DEFAULT '[]',
+  brief        TEXT,                         -- call/email prep (lib/brief.ts)
+  status       TEXT NOT NULL DEFAULT 'discovered', -- discovered | enriched | no_website | blocked_by_robots | error
+  enriched_at  TEXT,
+  error        TEXT
+);
+CREATE INDEX IF NOT EXISTS lead_intel_fit_idx ON lead_intel (fit_score);
+
+-- Do-not-contact list: unsubscribes and manual opt-outs. Campaigns and the lead finder always honor it.
+-- contact = lowercased email, E.164 phone (+15125550100) or "lead:<lead id>".
+CREATE TABLE IF NOT EXISTS suppressions (
+  contact    TEXT PRIMARY KEY,
+  reason     TEXT NOT NULL DEFAULT 'unsubscribe',
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
+
+-- Work queue for the lead finder's scheduled runs.
+CREATE TABLE IF NOT EXISTS finder_jobs (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  kind       TEXT NOT NULL,            -- discover | enrich
+  payload    TEXT NOT NULL DEFAULT '{}',
+  status     TEXT NOT NULL DEFAULT 'queued', -- queued | done | failed
+  attempts   INTEGER NOT NULL DEFAULT 0,
+  error      TEXT,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
+CREATE INDEX IF NOT EXISTS finder_jobs_queue_idx ON finder_jobs (status, kind, id);

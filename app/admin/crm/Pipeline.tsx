@@ -48,7 +48,7 @@ export function Pipeline({ leads: init }: { leads: Lead[] }) {
                       <span className="chip border-white/10 text-slate-400">{SEGMENT_LABEL[l.segment] ?? l.segment}</span>
                       <span className="font-semibold tabular-nums text-slate-200">{usd(l.value_cents)}</span>
                     </div>
-                    <div className="mt-1 text-[10px] text-slate-600">{l.source} · {l.updated}</div>
+                    <div className="mt-1 flex justify-between text-[10px] text-slate-600"><span>{l.source} · {l.updated}</span><a href={`/admin/leads/${l.id}`} draggable={false} onClick={(e) => e.stopPropagation()} className="text-accent hover:underline">Brief →</a></div>
                   </div>
                 ))}
               </div>

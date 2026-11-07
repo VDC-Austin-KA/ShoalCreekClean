@@ -8,10 +8,10 @@ const shots = process.argv[2];
 const browser = await chromium.launch();
 const errors = [];
 const step = async (name, fn) => {
-  try { await fn(); console.log("✓", name); } catch (e) { errors.push(name); console.log("✗", name, "—", e.message.split("\n").filter((l) => /waitFor|locator|Timeout|Error/.test(l)).slice(0, 3).join(" ⏎ ")); }
+  try { await fn(); console.log("✓", name); } catch (e) { errors.push(name); console.log("✗", name, "—", (e.message.split("\n").filter((l) => /waitFor|locator|Timeout|Error/.test(l)).slice(0, 3).join(" ⏎ ") || e.message.split("\n")[0])); }
 };
 async function session(email) {
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 1200 } });
   const page = await ctx.newPage();
   page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
   if (email) {
@@ -113,8 +113,12 @@ await step("map renders tiles, zones and draws a zone", async () => {
 await step("CRM pipeline drag", async () => {
   await admin.goto(`${BASE}/admin/crm`);
   const card = admin.locator("[draggable=true]", { hasText: "Sample Office Park" });
-  await card.dragTo(admin.locator(".glass", { hasText: "Contacted" }).first());
-  await admin.waitForTimeout(600);
+  // Wait for the stage PATCH itself (a fixed sleep raced the save on cold starts).
+  await Promise.all([
+    admin.waitForResponse((r) => r.url().includes("/api/admin/leads/") && r.request().method() === "PATCH" && r.ok()),
+    // Drop on the column header: it stays on screen even when a long "New" column forces a scroll.
+    card.dragTo(admin.locator(".glass", { hasText: "Contacted" }).first(), { targetPosition: { x: 100, y: 24 } }),
+  ]);
   await admin.reload();
   if (!(await admin.locator(".glass", { hasText: "Contacted" }).first().getByText("Sample Office Park").count())) throw new Error("lead not moved");
   await snap(admin, "08-crm");
@@ -131,6 +135,36 @@ await step("strategy → campaign → send → outbox", async () => {
   await admin.goto(`${BASE}/admin/outbox`);
   if (!(await admin.getByText("campaign").count())) throw new Error("no campaign emails in outbox");
   await snap(admin, "09-outbox");
+});
+await step("campaign emails carry CAN-SPAM footer + working unsubscribe", async () => {
+  await admin.goto(`${BASE}/admin/outbox`);
+  const item = admin.locator("details", { hasText: "campaign" }).first();
+  await item.locator("summary").click();
+  const body = await item.locator("pre").textContent();
+  const link = body.match(/Unsubscribe in one click: (\S+)/)?.[1];
+  if (!link) throw new Error("no unsubscribe link in campaign email");
+  const u = new URL(link);
+  await admin.goto(`${BASE}${u.pathname}${u.search}`);
+  await admin.getByText("You're unsubscribed").waitFor();
+  await admin.goto(`${BASE}/u?e=${encodeURIComponent(u.searchParams.get("e"))}&t=forged`);
+  await admin.getByText("Link not valid").waitFor();
+});
+await step("lead finder: competitor sighting → brief → do not contact", async () => {
+  await admin.goto(`${BASE}/admin/leads`);
+  await admin.getByText("Log a competitor sighting").waitFor();
+  await admin.waitForLoadState("networkidle");
+  await admin.fill('input[placeholder="Business / property name"]', "E2E Oak Hollow Plaza");
+  await admin.fill('input[placeholder^="What you saw"]', "branded truck in the lot at 6am");
+  await admin.click('button:has-text("Log sighting")');
+  await admin.waitForURL(/\/admin\/leads\/[0-9a-f-]{36}$/);
+  await admin.getByText("Goal for this conversation").waitFor();
+  await admin.getByText(/free side-by-side test area/).first().waitFor();
+  await admin.getByText(/left 9-to-5 tech jobs/).first().waitFor();
+  await admin.getByText(/Never disparage the competitor/).waitFor();
+  await admin.getByText(/Hi-Tech Power Wash seen working here/).waitFor();
+  await snap(admin, "14-lead-brief");
+  await admin.click('button:has-text("Do not contact")'); // confirm() auto-accepted by the dialog handler above
+  await admin.getByText(/Do Not Contact:/).waitFor();
 });
 await step("price book edit", async () => {
   await admin.goto(`${BASE}/admin/pricing`);

@@ -1,3 +1,4 @@
+import { STORY, founderIntro } from "./story.ts";
 // Deterministic outreach strategy generator: segment × portfolio size × city × season.
 export type StrategyInput = { segment: string; size: "single" | "small" | "portfolio"; city: string; month: number };
 export type Strategy = {
@@ -63,9 +64,9 @@ export function generateStrategy(i: StrategyInput): Strategy {
     ],
     email: {
       subject: `${s.name === "pollen season" ? "Pollen season" : "Quick idea"} for {{company}}'s curb appeal`,
-      body: `Hi {{first_name}},\n\n${s.hook}. We're Shoal Creek Clean, a ${i.city}-area commercial washing team built around ${p.angle}.\n\nFor {{company}} we'd suggest a ${p.service}. Every visit includes ${p.proof}.\n\nOffer: ${offer}.\n\nWorth a 15-minute call this week? Or get an instant estimate at {{quote_url}}.\n\n— Shoal Creek Clean`,
+      body: `Hi {{first_name}},\n\n${s.hook}. ${founderIntro(i.city)} What we offer: ${p.angle}.\n\nFor {{company}} we'd suggest a ${p.service}. Every visit includes ${p.proof}.\n\nOffer: ${offer}.\n\nWorth a 15-minute call this week? Or get an instant estimate at {{quote_url}}.\n\n— Shoal Creek Clean`,
     },
-    callOpener: `Hi, this is ___ with Shoal Creek Clean here in ${i.city}. I work with ${p.dm.split(" /")[0].toLowerCase()}s on ${p.pain.split(",")[0]}. Do you have a minute for why other ${i.city} sites are switching to photo-verified service?`,
+    callOpener: `Hi, this is ___ with Shoal Creek Clean here in ${i.city}. ${STORY.short} — ${STORY.why}. I help ${p.dm.split(" /")[0].toLowerCase()}s with ${p.pain.split(",")[0]}. Do you have a minute?`,
     collateral: [
       `One-page sell sheet: "${p.service}" with 3 before/after pairs`,
       "Sample client-portal screenshot showing job history and photo proof",

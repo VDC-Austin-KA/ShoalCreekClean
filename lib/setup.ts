@@ -19,7 +19,7 @@ export function lit(v: unknown): string {
 const insert = (table: string, row: Record<string, unknown>) =>
   `INSERT INTO ${table} (${Object.keys(row).join(",")}) VALUES (${Object.values(row).map(lit).join(",")});`;
 
-const TABLES = ["market_quotes", "competitors", "email_outbox", "campaigns", "map_markers", "service_zones", "payment_methods", "invoices",
+const TABLES = ["finder_jobs", "suppressions", "lead_intel", "market_quotes", "competitors", "email_outbox", "campaigns", "map_markers", "service_zones", "payment_methods", "invoices",
   "job_photos", "jobs", "quotes", "leads", "crew_members", "crews", "clients", "magic_links", "users", "pricing_rules"];
 
 export function buildSetupSql({ schemaSql, competitors, seed = false, passwordHash, now = new Date(), uuid = () => crypto.randomUUID() }: SetupOptions): string {

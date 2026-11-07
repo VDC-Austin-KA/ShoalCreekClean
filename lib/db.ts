@@ -11,7 +11,8 @@ type D1Stmt = { bind: (...v: unknown[]) => D1Stmt; all: <T>() => Promise<D1Resul
 export type D1 = { prepare: (sql: string) => D1Stmt; batch: (s: D1Stmt[]) => Promise<unknown[]> };
 
 const NOW = "strftime('%Y-%m-%dT%H:%M:%fZ','now')";
-const JSON_COLS = new Set(["equipment", "polygon", "line_items", "input", "prices", "services_claimed", "services_evidenced", "strategies", "sources", "photos"]);
+const JSON_COLS = new Set(["equipment", "polygon", "line_items", "input", "prices", "services_claimed", "services_evidenced", "strategies", "sources", "photos",
+  "emails", "phones", "people", "company_info", "fit_reasons", "brief"]);
 const BOOL_COLS = new Set(["is_default"]);
 
 async function d1(): Promise<D1> {
