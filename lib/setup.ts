@@ -1,92 +1,91 @@
-// Schema + seed logic shared by the Node CLI (scripts/db-setup.ts) and the deployed Worker (/api/admin/setup),
-// so the database can be initialized from wherever it is reachable.
-import bcrypt from "bcryptjs";
+// Builds the SQL that initializes a D1 database: schema + price book + sourced competitor research,
+// and (optionally) a full reset with alpha-test data. Applied with `wrangler d1 execute --file`
+// (scripts/db-setup.ts), which works identically against local and remote D1. Pure; no I/O.
 import { CITY_COORDS } from "./content.ts";
 import { DEFAULT_RULES } from "./pricing.ts";
+import { addDays, ctDate, ctToUtc } from "./tz.ts";
 
-type Db = { query: (sql: string, params?: unknown[]) => Promise<{ rows: any[] }> };
-export type SetupOptions = { schemaSql: string; competitors?: any[]; seed?: boolean; log?: (msg: string) => void };
+export type SetupOptions = { schemaSql: string; competitors?: any[]; seed?: boolean; passwordHash?: string; now?: Date; uuid?: () => string };
 
-export async function setupDb(db: Db, { schemaSql, competitors, seed = false, log = console.log }: SetupOptions) {
-  await db.query(schemaSql);
-  log("schema applied");
+/** SQL literal: strings quoted, arrays/objects stored as JSON text, booleans as 0/1. */
+export function lit(v: unknown): string {
+  if (v === null || v === undefined) return "NULL";
+  if (typeof v === "number") return Number.isFinite(v) ? String(v) : "NULL";
+  if (typeof v === "boolean") return v ? "1" : "0";
+  if (v instanceof Date) return lit(v.toISOString());
+  if (typeof v === "object") return lit(JSON.stringify(v));
+  return `'${String(v).replace(/'/g, "''")}'`;
+}
+const insert = (table: string, row: Record<string, unknown>) =>
+  `INSERT INTO ${table} (${Object.keys(row).join(",")}) VALUES (${Object.values(row).map(lit).join(",")});`;
+
+const TABLES = ["market_quotes", "competitors", "email_outbox", "campaigns", "map_markers", "service_zones", "payment_methods", "invoices",
+  "job_photos", "jobs", "quotes", "leads", "crew_members", "crews", "clients", "magic_links", "users", "pricing_rules"];
+
+export function buildSetupSql({ schemaSql, competitors, seed = false, passwordHash, now = new Date(), uuid = () => crypto.randomUUID() }: SetupOptions): string {
+  const out: string[] = [];
+  if (seed) out.push(...TABLES.map((t) => `DROP TABLE IF EXISTS ${t};`), "DROP TRIGGER IF EXISTS invoices_number;");
+  out.push(schemaSql);
   for (const r of DEFAULT_RULES)
-    await db.query(
-      `INSERT INTO pricing_rules (service,label,unit,rate,min_cents,production_per_hour,equipment,phase,description)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT (service) DO NOTHING`,
-      [r.service, r.label, r.unit, r.rate, r.min_cents, r.production_per_hour, r.equipment, r.phase, r.description],
-    );
+    out.push(insert("pricing_rules", { service: r.service, label: r.label, unit: r.unit, rate: r.rate, min_cents: r.min_cents, production_per_hour: r.production_per_hour, equipment: r.equipment, phase: r.phase, description: r.description })
+      .replace(/;$/, " ON CONFLICT (service) DO NOTHING;"));
 
-  /** Loads sourced competitor research into `competitors` + derived map layers. Idempotent. */
-  async function loadCompetitors() {
-    if (!competitors) return;
-    await db.query("DELETE FROM map_markers WHERE layer IN ('competitor','pricing')");
+  // --- Sourced competitor research → competitors + derived map layers (city-level placement, stable per-company offset)
+  if (competitors) {
+    out.push("DELETE FROM map_markers WHERE layer IN ('competitor','pricing');");
     for (const c of competitors) {
-      // City-level placement (street addresses are rarely published) with a stable per-company offset so pins don't stack.
       const coords = CITY_COORDS[c.base_city]; // undefined for out-of-market HQs (e.g. national lead-gen sites) → no map pin
-      const [clat, clng] = coords ?? CITY_COORDS.Austin;
-      const h = [...c.slug].reduce((a: number, ch: string) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
-      const lat = coords ? clat + ((h % 100) - 50) / 2500 : null, lng = coords ? clng + (((h >> 8) % 100) - 50) / 2500 : null;
-      await db.query(
-        `INSERT INTO competitors (slug,name,website,base_city,lat,lng,location_precision,kind,focus,services_claimed,services_evidenced,prices,strategies,confidence,notes,sources,retrieved_at)
-         VALUES ($1,$2,$3,$4,$5,$6,'city',$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
-         ON CONFLICT (slug) DO UPDATE SET name=EXCLUDED.name, website=EXCLUDED.website, base_city=EXCLUDED.base_city, lat=EXCLUDED.lat, lng=EXCLUDED.lng,
-           kind=EXCLUDED.kind, focus=EXCLUDED.focus, services_claimed=EXCLUDED.services_claimed, services_evidenced=EXCLUDED.services_evidenced,
-           prices=EXCLUDED.prices, strategies=EXCLUDED.strategies, confidence=EXCLUDED.confidence, notes=EXCLUDED.notes, sources=EXCLUDED.sources, retrieved_at=EXCLUDED.retrieved_at`,
-        [c.slug, c.name, c.website, c.base_city, lat, lng, c.kind ?? "local", c.focus ?? "mixed", c.services_claimed ?? [], c.services_evidenced ?? [],
-         JSON.stringify(c.prices ?? []), c.strategies ?? [], c.confidence ?? "medium", c.notes ?? null, c.sources ?? [], c.retrieved_at ?? new Date().toISOString().slice(0, 10)]);
+      const h = [...(c.slug as string)].reduce((a: number, ch: string) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
+      const lat = coords ? coords[0] + ((h % 100) - 50) / 2500 : null, lng = coords ? coords[1] + (((h >> 8) % 100) - 50) / 2500 : null;
+      const row = { slug: c.slug, name: c.name, website: c.website, base_city: c.base_city, lat, lng, location_precision: "city", kind: c.kind ?? "local", focus: c.focus ?? "mixed",
+        services_claimed: c.services_claimed ?? [], services_evidenced: c.services_evidenced ?? [], prices: c.prices ?? [], strategies: c.strategies ?? [],
+        confidence: c.confidence ?? "medium", notes: c.notes ?? null, sources: c.sources ?? [], retrieved_at: c.retrieved_at ?? ctDate(now) };
+      out.push(insert("competitors", row).replace(/;$/, ` ON CONFLICT (slug) DO UPDATE SET ${Object.keys(row).filter((k) => k !== "slug").map((k) => `${k}=excluded.${k}`).join(",")};`));
       if (!coords) continue;
-      await db.query("INSERT INTO map_markers (layer,label,lat,lng,radius_m,value,notes) VALUES ('competitor',$1,$2,$3,1800,$4,$5)",
-        [c.name, lat, lng, (c.services_claimed ?? []).length,
-         `${c.focus} · ${c.base_city ?? "base city not published"} · claims ${(c.services_claimed ?? []).length} services, work evidence for ${(c.services_evidenced ?? []).length}`]);
+      out.push(insert("map_markers", { id: uuid(), layer: "competitor", label: c.name, lat, lng, radius_m: 1800, value: (c.services_claimed ?? []).length,
+        notes: `${c.focus} · ${c.base_city ?? "base city not published"} · claims ${(c.services_claimed ?? []).length} services, work evidence for ${(c.services_evidenced ?? []).length}` }));
       for (const p of (c.prices ?? []).filter((p: any) => p.unit === "sqft" && p.low))
-        await db.query("INSERT INTO map_markers (layer,label,lat,lng,radius_m,value,notes) VALUES ('pricing',$1,$2,$3,3500,$4,$5)",
-          [`${c.name}: $${p.low}/sqft ${p.service}`, lat, lng, p.low, p.text]);
+        out.push(insert("map_markers", { id: uuid(), layer: "pricing", label: `${c.name}: $${p.low}/sqft ${p.service}`, lat, lng, radius_m: 3500, value: p.low, notes: p.text }));
     }
-    log(`competitors loaded: ${competitors.length}`);
   }
+  if (!seed) return out.join("\n");
+  if (!passwordHash) throw new Error("passwordHash required for seed");
 
-  if (!seed) { await loadCompetitors(); return; }
-
-  await db.query(`TRUNCATE market_quotes, competitors, email_outbox, campaigns, map_markers, service_zones, payment_methods, invoices, job_photos, jobs, quotes, leads, crew_members, crews, clients, magic_links, users RESTART IDENTITY CASCADE`);
-  const hash = await bcrypt.hash("alpha2026!", 10);
-  const ins = async (sql: string, p: unknown[]) => (await db.query(sql + " RETURNING id", p)).rows[0].id as string;
-  const user = (email: string, name: string, role: string, phone = "512-555-0100") =>
-    ins("INSERT INTO users (email,name,role,password_hash,phone) VALUES ($1,$2,$3,$4,$5)", [email, name, role, hash, phone]);
-
-  // --- Team: three partners + field crew
-  await user("ops@shoalcreek.test", "Partner — Operations", "owner");
-  await user("sales@shoalcreek.test", "Partner — Sales", "owner");
-  await user("finance@shoalcreek.test", "Partner — Finance", "owner");
-  const crewUsers = [
-    await user("alpha@shoalcreek.test", "Crew Lead Alpha", "crew"),
-    await user("bravo@shoalcreek.test", "Crew Lead Bravo", "crew"),
-    await user("charlie@shoalcreek.test", "Crew Lead Charlie", "crew"),
-  ];
+  // --- Team: three partners + field crew (demo password alpha2026!)
+  const user = (email: string, name: string, role: string) => { const id = uuid(); out.push(insert("users", { id, email, name, role, password_hash: passwordHash, phone: "512-555-0100" })); return id; };
+  user("ops@shoalcreek.test", "Partner — Operations", "owner");
+  user("sales@shoalcreek.test", "Partner — Sales", "owner");
+  user("finance@shoalcreek.test", "Partner — Finance", "owner");
+  const crewUsers = [user("alpha@shoalcreek.test", "Crew Lead Alpha", "crew"), user("bravo@shoalcreek.test", "Crew Lead Bravo", "crew"), user("charlie@shoalcreek.test", "Crew Lead Charlie", "crew")];
   const ALL = ["hot-water unit", "surface cleaner", "reclaim mat", "soft-wash rig", "ladders", "gutter vac", "fall protection", "sprayer"];
-  const crews = [
-    await ins("INSERT INTO crews (name,color,size,home_lat,home_lng,equipment) VALUES ($1,$2,$3,$4,$5,$6)", ["Crew Alpha", "#22d3ee", 3, 30.3072, -97.7231, ALL]),
-    await ins("INSERT INTO crews (name,color,size,home_lat,home_lng,equipment) VALUES ($1,$2,$3,$4,$5,$6)", ["Crew Bravo", "#a3e635", 2, 30.4794, -97.6800, ["hot-water unit", "surface cleaner", "reclaim mat", "sprayer"]]),
-    await ins("INSERT INTO crews (name,color,size,home_lat,home_lng,equipment) VALUES ($1,$2,$3,$4,$5,$6)", ["Crew Charlie", "#f472b6", 2, 30.5052, -97.8203, ["soft-wash rig", "ladders", "gutter vac", "fall protection", "surface cleaner"]]),
+  const crewDefs: [string, string, number, number, number, string[]][] = [
+    ["Crew Alpha", "#22d3ee", 3, 30.3072, -97.7231, ALL],
+    ["Crew Bravo", "#a3e635", 2, 30.4794, -97.68, ["hot-water unit", "surface cleaner", "reclaim mat", "sprayer"]],
+    ["Crew Charlie", "#f472b6", 2, 30.5052, -97.8203, ["soft-wash rig", "ladders", "gutter vac", "fall protection", "surface cleaner"]],
   ];
-  for (let i = 0; i < 3; i++) await db.query("INSERT INTO crew_members VALUES ($1,$2)", [crews[i], crewUsers[i]]);
-  
+  const crews = crewDefs.map(([name, color, size, home_lat, home_lng, equipment], i) => {
+    const id = uuid();
+    out.push(insert("crews", { id, name, color, size, home_lat, home_lng, equipment }), insert("crew_members", { crew_id: id, user_id: crewUsers[i] }));
+    return id;
+  });
+
   // --- Clients (fictional sample accounts)
   const C = [
     ["client@shoalcreek.test", "Sample Property Group", "Jordan Rivera", "property_management", "2100 S Lamar Blvd, Austin, TX", 30.2465, -97.7795],
     ["retail@shoalcreek.test", "Northgate Retail Commons (sample)", "Casey Nguyen", "retail_center", "2701 S I-35 Frontage Rd, Round Rock, TX", 30.4846, -97.6747],
     ["hoa@shoalcreek.test", "Cedar Hollow HOA (sample)", "Morgan Patel", "hoa", "1400 Cypress Creek Rd, Cedar Park, TX", 30.4836, -97.8302],
-    ["cafe@shoalcreek.test", "Pecan Street Cafe (sample)", "Riley Brooks", "restaurant", "100 E Pecan St, Pflugerville, TX", 30.4394, -97.6200],
+    ["cafe@shoalcreek.test", "Pecan Street Cafe (sample)", "Riley Brooks", "restaurant", "100 E Pecan St, Pflugerville, TX", 30.4394, -97.62],
     ["home@shoalcreek.test", null, "Taylor Kim", "residential", "4500 Shoal Creek Blvd, Austin, TX", 30.3156, -97.7487],
   ] as const;
-  const clients: string[] = [];
-  for (const [email, company, name, segment, address, lat, lng] of C) {
-    const uid = await user(email, name, "client");
-    clients.push(await ins("INSERT INTO clients (user_id,company,contact_name,email,segment,address,lat,lng,phone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'512-555-0142')", [uid, company, name, email, segment, address, lat, lng]));
-  }
-  
-  // --- Jobs: history, this week, and an unassigned backlog for the planner
-  const at = "(date_trunc('day', now() AT TIME ZONE 'America/Chicago') + make_interval(days => $1::int, hours => $2::int)) AT TIME ZONE 'America/Chicago'";
+  const clients = C.map(([email, company, contact_name, segment, address, lat, lng]) => {
+    const user_id = user(email, contact_name, "client"), id = uuid();
+    out.push(insert("clients", { id, user_id, company, contact_name, email, segment, address, lat, lng, phone: "512-555-0142" }));
+    return id;
+  });
+
+  // --- Jobs: history, this week, and an unassigned backlog for the planner (Central-time days relative to today)
+  const today = ctDate(now);
+  const at = (day: number, hour: number) => ctToUtc(addDays(today, day), `${String(hour).padStart(2, "0")}:00`);
   type J = [client: number, crew: number | null, day: number, hour: number, title: string, service: string, minutes: number, price: number, status: string, freq?: string, size?: number, equip?: string[], dLat?: number, dLng?: number];
   const J: J[] = [
     [0, 0, -28, 7, "Parking lot + sidewalks — Lamar site", "flatwork", 240, 1850, "completed", "quarterly"],
@@ -107,79 +106,75 @@ export async function setupDb(db: Db, { schemaSql, competitors, seed = false, lo
     [3, null, 1, 13, "Patio + entry wash", "storefront", 90, 350, "scheduled", "monthly", 1, []],
     [2, null, 1, 9, "Pavilion roof soft wash", "roof", 240, 1400, "scheduled", "biannual", 2, ["soft-wash rig", "fall protection"]],
   ];
-  const jobIds: string[] = [];
+  const svg = (label: string, a: string, b: string) =>
+    "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='640' height='400'><defs><linearGradient id='g' x2='1' y2='1'><stop stop-color='${a}'/><stop offset='1' stop-color='${b}'/></linearGradient></defs><rect width='640' height='400' fill='url(#g)'/><text x='24' y='376' font-family='sans-serif' font-size='28' fill='white'>${label} · sample photo</text></svg>`);
+  let invoiceNo = 0;
   for (const [ci, cr, day, hour, title, service, minutes, price, status, freq = "one_time", size = 2, equip = ["hot-water unit", "surface cleaner"], dLat = 0, dLng = 0] of J) {
-    const c = C[ci];
-    const id = (await db.query(
-      `INSERT INTO jobs (client_id,crew_id,title,service,address,lat,lng,scheduled_start,quoted_minutes,actual_minutes,crew_size,equipment,frequency,price_cents,status,clock_in,clock_out)
-       VALUES ($3,$4,$5,$6,$7,$8,$9,${at},$10,$11,$12,$13,$14,$15,$16::job_status,
-         CASE WHEN $16 IN ('in_progress','completed') THEN ${at} END,
-         CASE WHEN $16 = 'completed' THEN ${at} + make_interval(mins => $11::int) END) RETURNING id`,
-      [day, hour, clients[ci], cr === null ? null : crews[cr], title, service, c[4], c[5] + dLat, c[6] + dLng, minutes,
-       status === "completed" ? Math.round(minutes * (0.9 + ((title.length % 5) * 0.06))) : null, size, equip, freq, price * 100, status],
-    )).rows[0].id as string;
-    jobIds.push(id);
-    if (status === "completed") {
-      const svg = (label: string, a: string, b: string) =>
-        "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='640' height='400'><defs><linearGradient id='g' x2='1' y2='1'><stop stop-color='${a}'/><stop offset='1' stop-color='${b}'/></linearGradient></defs><rect width='640' height='400' fill='url(#g)'/><text x='24' y='376' font-family='sans-serif' font-size='28' fill='white'>${label} · sample photo</text></svg>`);
-      await db.query("INSERT INTO job_photos (job_id,kind,data_url,taken_by) VALUES ($1,'before',$2,$4),($1,'after',$3,$4)",
-        [id, svg("Before", "#3f3a2e", "#1d1b16"), svg("After", "#cbd5e1", "#94a3b8"), crewUsers[cr ?? 0]]);
-      const paid = day < -10;
-      await db.query(
-        `INSERT INTO invoices (client_id,job_id,description,amount_cents,status,due_date,paid_at,payment_method)
-         VALUES ($1,$2,$3,$4,$5,(now() + make_interval(days => $6::int))::date,$7,$8)`,
-        [clients[ci], id, title, price * 100, paid ? "paid" : "open", day + 15, paid ? new Date(Date.now() + (day + 2) * 864e5) : null, paid ? "Visa •••• 4242" : null],
-      );
-    }
+    const id = uuid(), start = at(day, hour), c = C[ci];
+    const actual = status === "completed" ? Math.round(minutes * (0.9 + (title.length % 5) * 0.06)) : null;
+    out.push(insert("jobs", {
+      id, client_id: clients[ci], crew_id: cr === null ? null : crews[cr], title, service, address: c[4], lat: c[5] + dLat, lng: c[6] + dLng, scheduled_start: start,
+      quoted_minutes: minutes, actual_minutes: actual, crew_size: size, equipment: equip, frequency: freq, price_cents: price * 100, status,
+      clock_in: ["in_progress", "completed"].includes(status) ? start : null,
+      clock_out: status === "completed" ? new Date(new Date(start).getTime() + actual! * 60000).toISOString() : null,
+    }));
+    if (status !== "completed") continue;
+    out.push(
+      insert("job_photos", { id: uuid(), job_id: id, kind: "before", data_url: svg("Before", "#3f3a2e", "#1d1b16"), taken_by: crewUsers[cr ?? 0] }),
+      insert("job_photos", { id: uuid(), job_id: id, kind: "after", data_url: svg("After", "#cbd5e1", "#94a3b8"), taken_by: crewUsers[cr ?? 0] }),
+    );
+    const paid = day < -10;
+    out.push(insert("invoices", {
+      id: uuid(), number: ++invoiceNo, client_id: clients[ci], job_id: id, description: title, amount_cents: price * 100, status: paid ? "paid" : "open",
+      due_date: addDays(today, day + 15), paid_at: paid ? new Date(now.getTime() + (day + 2) * 864e5) : null, payment_method: paid ? "Visa •••• 4242" : null,
+    }));
   }
-  await db.query("INSERT INTO payment_methods (client_id,kind,label,is_default) VALUES ($1,'card','Visa •••• 4242',true),($1,'ach','Business checking •••• 6789',false)", [clients[0]]);
-  
+  out.push(insert("payment_methods", { id: uuid(), client_id: clients[0], kind: "card", label: "Visa •••• 4242", is_default: true }),
+    insert("payment_methods", { id: uuid(), client_id: clients[0], kind: "ach", label: "Business checking •••• 6789", is_default: false }));
+
   // --- CRM leads
   const L: [string, string, string, string, string, number, string, number, number][] = [
     ["Avery Coleman", "Sample Office Park", "office_park", "Austin", "new", 1800000, "website", 30.4012, -97.7253],
-    ["Drew Hamilton", "Riverside Multifamily (sample)", "multifamily", "Austin", "new", 950000, "referral", 30.2380, -97.7240],
-    ["Sam Ortiz", "Brushy Creek HOA (sample)", "hoa", "Round Rock", "contacted", 640000, "door-to-door", 30.5110, -97.7300],
+    ["Drew Hamilton", "Riverside Multifamily (sample)", "multifamily", "Austin", "new", 950000, "referral", 30.238, -97.724],
+    ["Sam Ortiz", "Brushy Creek HOA (sample)", "hoa", "Round Rock", "contacted", 640000, "door-to-door", 30.511, -97.73],
     ["Jamie Lee", "Main St Bakery (sample)", "storefront", "Round Rock", "contacted", 120000, "instagram", 30.5083, -97.6789],
     ["Quinn Foster", "Sample Asset Partners", "property_management", "Austin", "quoted", 4200000, "linkedin", 30.2672, -97.7431],
-    ["Reese Walker", "Pflugerville Plaza (sample)", "retail_center", "Pflugerville", "quoted", 1450000, "cold email", 30.4560, -97.6100],
-    ["Parker Diaz", "Taco Spot #3 (sample)", "restaurant", "Cedar Park", "won", 380000, "website", 30.5200, -97.8100],
+    ["Reese Walker", "Pflugerville Plaza (sample)", "retail_center", "Pflugerville", "quoted", 1450000, "cold email", 30.456, -97.61],
+    ["Parker Diaz", "Taco Spot #3 (sample)", "restaurant", "Cedar Park", "won", 380000, "website", 30.52, -97.81],
     ["Emerson Hall", "Sample Property Group", "property_management", "Austin", "retained", 2800000, "referral", 30.2465, -97.7795],
-    ["Rowan Price", "Lakeview Townhomes (sample)", "hoa", "Cedar Park", "lost", 300000, "website", 30.4950, -97.8500],
-    ["Hayden Brooks", "Sample Dental Studio", "storefront", "Austin", "new", 90000, "google", 30.3500, -97.7350],
+    ["Rowan Price", "Lakeview Townhomes (sample)", "hoa", "Cedar Park", "lost", 300000, "website", 30.495, -97.85],
+    ["Hayden Brooks", "Sample Dental Studio", "storefront", "Austin", "new", 90000, "google", 30.35, -97.735],
   ];
-  for (const [name, company, segment, city, stage, value, source, lat, lng] of L)
-    await db.query("INSERT INTO leads (name,company,email,segment,city,stage,value_cents,source,lat,lng) VALUES ($1,$2,$3,$4,$5,$6::lead_stage,$7,$8,$9,$10)",
-      [name, company, name.split(" ")[0].toLowerCase() + "@example.com", segment, city, stage, value, source, lat, lng]);
-  
+  for (const [name, company, segment, city, stage, value_cents, source, lat, lng] of L)
+    out.push(insert("leads", { id: uuid(), name, company, email: name.split(" ")[0].toLowerCase() + "@example.com", segment, city, stage, value_cents, source, lat, lng }));
+
   // --- Service zones ([lat,lng] polygons, approximate)
   const Z: [string, string, number, number[][], string][] = [
-    ["Austin Core", "#22d3ee", 1, [[30.36, -97.80], [30.36, -97.68], [30.22, -97.68], [30.20, -97.80], [30.26, -97.84]], "Downtown, Domain-to-SoCo corridor"],
-    ["North Metro — Round Rock / Pflugerville", "#a3e635", 1, [[30.56, -97.72], [30.56, -97.57], [30.40, -97.57], [30.38, -97.68], [30.42, -97.74]], "I-35 / SH-130 retail and multifamily"],
-    ["Cedar Park / Leander", "#f472b6", 1, [[30.60, -97.90], [30.60, -97.78], [30.46, -97.76], [30.44, -97.86]], "183A corridor, HOAs"],
-    ["Georgetown (Phase 2)", "#fbbf24", 2, [[30.70, -97.74], [30.70, -97.62], [30.58, -97.62], [30.58, -97.74]], "Expansion after 3rd crew"],
-    ["Buda / Kyle (Phase 2)", "#fbbf24", 2, [[30.12, -97.90], [30.12, -97.78], [29.96, -97.78], [29.96, -97.90]], "Expansion — residential growth"],
+    ["Austin Core", "#22d3ee", 1, [[30.36, -97.8], [30.36, -97.68], [30.22, -97.68], [30.2, -97.8], [30.26, -97.84]], "Downtown, Domain-to-SoCo corridor"],
+    ["North Metro — Round Rock / Pflugerville", "#a3e635", 1, [[30.56, -97.72], [30.56, -97.57], [30.4, -97.57], [30.38, -97.68], [30.42, -97.74]], "I-35 / SH-130 retail and multifamily"],
+    ["Cedar Park / Leander", "#f472b6", 1, [[30.6, -97.9], [30.6, -97.78], [30.46, -97.76], [30.44, -97.86]], "183A corridor, HOAs"],
+    ["Georgetown (Phase 2)", "#fbbf24", 2, [[30.7, -97.74], [30.7, -97.62], [30.58, -97.62], [30.58, -97.74]], "Expansion after 3rd crew"],
+    ["Buda / Kyle (Phase 2)", "#fbbf24", 2, [[30.12, -97.9], [30.12, -97.78], [29.96, -97.78], [29.96, -97.9]], "Expansion — residential growth"],
   ];
-  for (const [name, color, phase, poly, notes] of Z)
-    await db.query("INSERT INTO service_zones (name,color,phase,polygon,notes) VALUES ($1,$2,$3,$4,$5)", [name, color, phase, JSON.stringify(poly), notes]);
-  
-  // --- Map intelligence: commercial corridors (hotspots). Competitor + pricing layers come from data/competitors.json.
-  const M: [string, string, number, number, number, number, string][] = [
-    ["hotspot", "Domain / North Burnet retail + office", 30.4021, -97.7253, 2200, 0.95, "High-density Class A retail"],
-    ["hotspot", "Downtown CBD", 30.2672, -97.7431, 2000, 0.9, "Office towers, plazas, garages"],
-    ["hotspot", "I-35 Round Rock retail corridor", 30.4846, -97.6747, 2600, 0.85, "Big-box + strip centers"],
-    ["hotspot", "Parmer Ln tech campuses", 30.4170, -97.6950, 2400, 0.75, "Office parks, garages"],
-    ["hotspot", "183A Cedar Park commercial", 30.4836, -97.8302, 2200, 0.7, "Strip centers, restaurants"],
-    ["hotspot", "SH-130 Pflugerville growth", 30.4560, -97.6100, 2400, 0.6, "New retail + multifamily"],
-    ["hotspot", "South Lamar / SoCo", 30.2465, -97.7600, 1800, 0.8, "Restaurants + storefronts"],
+  for (const [name, color, phase, polygon, notes] of Z) out.push(insert("service_zones", { id: uuid(), name, color, phase, polygon, notes }));
+
+  // --- Commercial corridors (density hotspots)
+  const M: [string, number, number, number, number, string][] = [
+    ["Domain / North Burnet retail + office", 30.4021, -97.7253, 2200, 0.95, "High-density Class A retail"],
+    ["Downtown CBD", 30.2672, -97.7431, 2000, 0.9, "Office towers, plazas, garages"],
+    ["I-35 Round Rock retail corridor", 30.4846, -97.6747, 2600, 0.85, "Big-box + strip centers"],
+    ["Parmer Ln tech campuses", 30.417, -97.695, 2400, 0.75, "Office parks, garages"],
+    ["183A Cedar Park commercial", 30.4836, -97.8302, 2200, 0.7, "Strip centers, restaurants"],
+    ["SH-130 Pflugerville growth", 30.456, -97.61, 2400, 0.6, "New retail + multifamily"],
+    ["South Lamar / SoCo", 30.2465, -97.76, 1800, 0.8, "Restaurants + storefronts"],
   ];
-  for (const m of M) await db.query("INSERT INTO map_markers (layer,label,lat,lng,radius_m,value,notes) VALUES ($1,$2,$3,$4,$5,$6,$7)", m);
-  await loadCompetitors();
-  
-  // --- Campaigns
-  await db.query(`INSERT INTO campaigns (name,subject,body,audience,status,recipient_count,sent_at) VALUES
-   ('Fall reset — commercial','Post-summer grime? Get a fall reset for {{company}}','Hi {{first_name}},\n\nSummer left its mark. Book a fall flatwork reset this month and save 10%.\n\n— Shoal Creek Clean','commercial','sent',6, now() - interval '9 days'),
-   ('Holiday storefront prep','Make {{company}} shine for holiday shoppers','Hi {{first_name}},\n\nHoliday traffic is coming. We''ll wash your storefront overnight so you never lose a trading hour.\n\n— Shoal Creek Clean','storefront','draft',0,NULL)`);
-  await db.query(`INSERT INTO email_outbox (to_email,subject,body,kind) VALUES ('client@shoalcreek.test','Your job is complete — photos inside','Your recent service is complete. View before/after photos in your client portal.','transactional')`);
-  
-  log(`seeded: ${crews.length} crews, ${clients.length} clients, ${jobIds.length} jobs, ${L.length} leads, ${Z.length} zones`);
+  for (const [label, lat, lng, radius_m, value, notes] of M) out.push(insert("map_markers", { id: uuid(), layer: "hotspot", label, lat, lng, radius_m, value, notes }));
+
+  // --- Campaigns + outbox
+  out.push(
+    insert("campaigns", { id: uuid(), name: "Fall reset — commercial", subject: "Post-summer grime? Get a fall reset for {{company}}", body: "Hi {{first_name}},\n\nSummer left its mark. Book a fall flatwork reset this month and save 10%.\n\n— Shoal Creek Clean", audience: "commercial", status: "sent", recipient_count: 6, sent_at: new Date(now.getTime() - 9 * 864e5) }),
+    insert("campaigns", { id: uuid(), name: "Holiday storefront prep", subject: "Make {{company}} shine for holiday shoppers", body: "Hi {{first_name}},\n\nHoliday traffic is coming. We'll wash your storefront overnight so you never lose a trading hour.\n\n— Shoal Creek Clean", audience: "storefront", status: "draft" }),
+    insert("email_outbox", { id: uuid(), to_email: "client@shoalcreek.test", subject: "Your job is complete — photos inside", body: "Your recent service is complete. View before/after photos in your client portal.", kind: "transactional" }),
+  );
+  return out.join("\n");
 }

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { q } from "@/lib/db";
 import { requirePage } from "@/lib/auth";
 import { STAFF } from "@/lib/session";
-import { todayCT, addDays } from "@/lib/admin";
+import { todayCT, addDays, withDay } from "@/lib/admin";
+import { ctDayBounds } from "@/lib/tz";
 import { Empty, Logo } from "@/components/ui";
 import { FieldJob } from "./FieldJob";
 
@@ -15,13 +16,14 @@ export default async function Field({ searchParams }: { searchParams: Promise<{ 
   const crews = staff ? await q("SELECT id,name,color FROM crews ORDER BY name")
     : await q("SELECT c.id,c.name,c.color FROM crews c JOIN crew_members m ON m.crew_id=c.id WHERE m.user_id=$1", [s.uid]);
   const crew = crews.find((c) => c.id === sp.crew) ?? crews[0];
-  const jobs = crew ? await q(
-    `SELECT j.id,j.title,j.address,j.lat,j.lng,j.status,j.notes,j.crew_size,j.equipment,j.quoted_minutes,j.clock_in,
-       to_char(j.scheduled_start AT TIME ZONE 'America/Chicago','FMHH12:MI am') AS time, COALESCE(c.company,c.contact_name) AS client, c.phone,
-       (SELECT json_agg(json_build_object('id',p.id,'kind',p.kind,'url',p.data_url)) FROM job_photos p WHERE p.job_id=j.id) AS photos
+  const [from, to] = ctDayBounds(day);
+  const jobs = crew ? withDay(await q(
+    `SELECT j.id,j.title,j.address,j.lat,j.lng,j.status,j.notes,j.crew_size,j.equipment,j.quoted_minutes,j.clock_in,j.scheduled_start,
+       COALESCE(c.company,c.contact_name) AS client, c.phone,
+       (SELECT json_group_array(json_object('id',p.id,'kind',p.kind,'url',p.data_url)) FROM job_photos p WHERE p.job_id=j.id) AS photos
      FROM jobs j JOIN clients c ON c.id=j.client_id
-     WHERE j.crew_id=$1 AND j.status<>'cancelled' AND (j.scheduled_start AT TIME ZONE 'America/Chicago')::date=$2::date
-     ORDER BY j.route_order NULLS LAST, j.scheduled_start`, [crew.id, day]) : [];
+     WHERE j.crew_id=$1 AND j.status<>'cancelled' AND j.scheduled_start >= $2 AND j.scheduled_start < $3
+     ORDER BY j.route_order IS NULL, j.route_order, j.scheduled_start`, [crew.id, from, to])) : [];
   const route = jobs.filter((j) => j.status !== "completed");
   const mapsAll = route.length ? `https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=${route.at(-1)!.lat},${route.at(-1)!.lng}${route.length > 1 ? `&waypoints=${route.slice(0, -1).map((j) => `${j.lat},${j.lng}`).join("|")}` : ""}` : null;
   const qs = (o: Record<string, string>) => "?" + new URLSearchParams({ day, ...(crew ? { crew: crew.id } : {}), ...o });

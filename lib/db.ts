@@ -1,41 +1,41 @@
 import "server-only";
-import pg, { type QueryResultRow } from "pg";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-// Two runtimes:
-//  - Node (dev, Docker): one shared pool from DATABASE_URL.
-//  - Cloudflare Workers: I/O objects can't be shared across requests, so each query opens a short-lived
-//    client through the Hyperdrive binding, which does the real connection pooling at the edge.
-const onWorkers = typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
+// Cloudflare D1 (SQLite) access. Locally `next dev` / `wrangler dev` use a local D1 file in .wrangler/.
+// Conveniences so call sites stay readable:
+//  - `$1, $2 …` placeholders are rewritten to D1's `?1, ?2 …`
+//  - `now()` in SQL → current UTC timestamp in the same ISO format JS produces
+//  - array/object params are stored as JSON text; JSON_COLS are parsed back on read; BOOL_COLS become booleans
+type D1Result<T> = { results: T[] };
+type D1Stmt = { bind: (...v: unknown[]) => D1Stmt; all: <T>() => Promise<D1Result<T>> };
+export type D1 = { prepare: (sql: string) => D1Stmt; batch: (s: D1Stmt[]) => Promise<unknown[]> };
 
-const g = globalThis as unknown as { __pool?: pg.Pool };
-function nodePool() {
-  g.__pool ??= new pg.Pool({
-    connectionString: process.env.DATABASE_URL,
-    max: 10,
-    ssl: process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: false } : undefined,
-  });
-  return g.__pool;
-}
+const NOW = "strftime('%Y-%m-%dT%H:%M:%fZ','now')";
+const JSON_COLS = new Set(["equipment", "polygon", "line_items", "input", "prices", "services_claimed", "services_evidenced", "strategies", "sources", "photos"]);
+const BOOL_COLS = new Set(["is_default"]);
 
-/** A dedicated client (caller must `end()` it). Used for multi-statement work such as setup/seed. */
-export async function workerClient() {
-  const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+async function d1(): Promise<D1> {
   const { env } = await getCloudflareContext({ async: true });
-  const client = new pg.Client({ connectionString: (env as unknown as { HYPERDRIVE: { connectionString: string } }).HYPERDRIVE.connectionString });
-  await client.connect();
-  return client;
+  return (env as unknown as { DB: D1 }).DB;
 }
 
-export async function q<T extends QueryResultRow = any>(sql: string, params: unknown[] = []): Promise<T[]> {
-  if (!onWorkers) return (await nodePool().query<T>(sql, params)).rows;
-  const client = await workerClient();
-  try {
-    return (await client.query<T>(sql, params)).rows;
-  } finally {
-    client.end().catch(() => {});
+export const toSql = (sql: string) => sql.replace(/\$(\d+)/g, "?$1").replace(/\bnow\(\)/g, NOW);
+export const toParam = (v: unknown) =>
+  v === undefined ? null : v instanceof Date ? v.toISOString() : typeof v === "boolean" ? (v ? 1 : 0) : v !== null && typeof v === "object" ? JSON.stringify(v) : v;
+export function fromRow<T>(row: Record<string, unknown>): T {
+  for (const k in row) {
+    const v = row[k];
+    if (JSON_COLS.has(k) && typeof v === "string") { try { row[k] = JSON.parse(v); } catch { /* leave as text */ } }
+    else if (BOOL_COLS.has(k)) row[k] = !!v;
   }
+  return row as T;
 }
-export async function one<T extends QueryResultRow = any>(sql: string, params: unknown[] = []): Promise<T | null> {
+
+export async function q<T = any>(sql: string, params: unknown[] = []): Promise<T[]> {
+  const stmt = (await d1()).prepare(toSql(sql)).bind(...params.map(toParam));
+  const { results } = await stmt.all<Record<string, unknown>>();
+  return results.map((r) => fromRow<T>(r));
+}
+export async function one<T = any>(sql: string, params: unknown[] = []): Promise<T | null> {
   return (await q<T>(sql, params))[0] ?? null;
 }
-export const isWorkers = onWorkers;

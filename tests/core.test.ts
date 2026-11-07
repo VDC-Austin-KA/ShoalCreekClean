@@ -82,3 +82,34 @@ test("logged quotes feed the benchmark", () => {
   assert.equal(b.perUnit?.n, 1);
 });
 test("say/do gap", () => assert.equal(Math.round(sayDoGap(comps[0]) * 100), 67));
+
+import { ctToUtc, ctDate, ctClock, ctDayBounds, weekStart } from "../lib/tz.ts";
+test("Central time ↔ UTC across DST", () => {
+  assert.equal(ctToUtc("2026-11-07", "08:00"), "2026-11-07T14:00:00.000Z"); // CST (UTC−6)
+  assert.equal(ctToUtc("2026-07-01", "08:00"), "2026-07-01T13:00:00.000Z"); // CDT (UTC−5)
+  assert.equal(ctToUtc("2026-03-08", "12:00"), "2026-03-08T17:00:00.000Z"); // DST starts 2am that day
+  assert.equal(ctDate("2026-11-08T05:59:00.000Z"), "2026-11-07");
+  assert.equal(ctClock("2026-11-07T14:00:00.000Z"), "08:00");
+  assert.deepEqual(ctDayBounds("2026-11-01"), ["2026-11-01T05:00:00.000Z", "2026-11-02T06:00:00.000Z"]); // 25-hour fall-back day
+  assert.equal(weekStart("2026-11-07"), "2026-11-02");
+});
+
+import { DatabaseSync } from "node:sqlite";
+import { readFileSync } from "node:fs";
+import { buildSetupSql, lit } from "../lib/setup.ts";
+test("seed SQL runs on SQLite and is idempotent for non-seed setup", () => {
+  const db = new DatabaseSync(":memory:");
+  db.exec("PRAGMA foreign_keys=ON");
+  const schemaSql = readFileSync(new URL("../db/schema.sql", import.meta.url), "utf8");
+  const competitors = JSON.parse(readFileSync(new URL("../data/competitors.json", import.meta.url), "utf8")).competitors;
+  db.exec(buildSetupSql({ schemaSql, competitors, seed: true, passwordHash: "x", now: new Date("2026-11-07T18:00:00Z") }));
+  db.exec(buildSetupSql({ schemaSql, competitors })); // re-running setup must not fail or duplicate
+  const n = (t: string) => (db.prepare(`SELECT COUNT(*) AS n FROM ${t}`).get() as { n: number }).n;
+  assert.equal(n("competitors"), competitors.length);
+  assert.equal(n("jobs"), 17);
+  assert.equal(n("users"), 11);
+  assert.equal(n("pricing_rules"), 7);
+  db.exec("INSERT INTO invoices (client_id, description, amount_cents) SELECT id, 'x', 1 FROM clients LIMIT 1");
+  assert.equal((db.prepare("SELECT MAX(number) AS m FROM invoices").get() as { m: number }).m, n("invoices")); // trigger numbers new invoices
+  assert.equal(lit("O'Brien"), "'O''Brien'");
+});

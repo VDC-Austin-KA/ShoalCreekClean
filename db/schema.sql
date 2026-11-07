@@ -1,245 +1,239 @@
--- Shoal Creek Clean — PostgreSQL schema (portable to Supabase).
--- Idempotent: safe to run repeatedly.
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
-DO $$ BEGIN
-  CREATE TYPE user_role AS ENUM ('owner','manager','crew','client');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-DO $$ BEGIN
-  CREATE TYPE job_status AS ENUM ('scheduled','en_route','in_progress','completed','cancelled');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-DO $$ BEGIN
-  CREATE TYPE lead_stage AS ENUM ('new','contacted','quoted','won','retained','lost');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+-- Shoal Creek Clean — Cloudflare D1 (SQLite) schema. Idempotent.
+-- Conventions: ids are UUID text; timestamps are UTC ISO-8601 text ("2026-11-07T14:00:00.000Z");
+-- arrays/objects are JSON text (parsed/serialized by lib/db.ts); booleans are 0/1.
 
 CREATE TABLE IF NOT EXISTS users (
-  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  email         text NOT NULL UNIQUE,
-  name          text NOT NULL,
-  phone         text,
-  role          user_role NOT NULL DEFAULT 'client',
-  password_hash text,
-  created_at    timestamptz NOT NULL DEFAULT now()
+  id            TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  email         TEXT NOT NULL UNIQUE,
+  name          TEXT NOT NULL,
+  phone         TEXT,
+  role          TEXT NOT NULL DEFAULT 'client' CHECK (role IN ('owner','manager','crew','client')),
+  password_hash TEXT,
+  created_at    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
 CREATE TABLE IF NOT EXISTS magic_links (
-  token_hash text PRIMARY KEY,
-  user_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  expires_at timestamptz NOT NULL,
-  used_at    timestamptz
+  token_hash TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at TEXT NOT NULL,
+  used_at    TEXT
 );
 
 CREATE TABLE IF NOT EXISTS clients (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id      uuid UNIQUE REFERENCES users(id) ON DELETE SET NULL,
-  company      text,
-  contact_name text NOT NULL,
-  email        text NOT NULL,
-  phone        text,
-  segment      text NOT NULL DEFAULT 'residential',
-  address      text,
-  lat          double precision,
-  lng          double precision,
-  created_at   timestamptz NOT NULL DEFAULT now()
+  id           TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  user_id      TEXT UNIQUE REFERENCES users(id) ON DELETE SET NULL,
+  company      TEXT,
+  contact_name TEXT NOT NULL,
+  email        TEXT NOT NULL,
+  phone        TEXT,
+  segment      TEXT NOT NULL DEFAULT 'residential',
+  address      TEXT,
+  lat          REAL,
+  lng          REAL,
+  created_at   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
 CREATE TABLE IF NOT EXISTS crews (
-  id    uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name  text NOT NULL,
-  color text NOT NULL DEFAULT '#22d3ee',
-  size  int  NOT NULL DEFAULT 2,
-  home_lat double precision NOT NULL DEFAULT 30.2672,
-  home_lng double precision NOT NULL DEFAULT -97.7431,
-  equipment text[] NOT NULL DEFAULT '{}'
+  id        TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  name      TEXT NOT NULL,
+  color     TEXT NOT NULL DEFAULT '#22d3ee',
+  size      INTEGER NOT NULL DEFAULT 2,
+  home_lat  REAL NOT NULL DEFAULT 30.2672,
+  home_lng  REAL NOT NULL DEFAULT -97.7431,
+  equipment TEXT NOT NULL DEFAULT '[]'
 );
 
 CREATE TABLE IF NOT EXISTS crew_members (
-  crew_id uuid REFERENCES crews(id) ON DELETE CASCADE,
-  user_id uuid REFERENCES users(id) ON DELETE CASCADE,
+  crew_id TEXT REFERENCES crews(id) ON DELETE CASCADE,
+  user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
   PRIMARY KEY (crew_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS pricing_rules (
-  service       text PRIMARY KEY,
-  label         text NOT NULL,
-  unit          text NOT NULL,           -- sqft | lf
-  rate          numeric(8,4) NOT NULL,   -- dollars per unit
-  min_cents     int  NOT NULL,
-  production_per_hour int NOT NULL,      -- units per tech-hour
-  equipment     text[] NOT NULL DEFAULT '{}',
-  phase         int NOT NULL DEFAULT 1,
-  description   text
+  service             TEXT PRIMARY KEY,
+  label               TEXT NOT NULL,
+  unit                TEXT NOT NULL,           -- sqft | lf
+  rate                REAL NOT NULL,           -- dollars per unit
+  min_cents           INTEGER NOT NULL,
+  production_per_hour INTEGER NOT NULL,        -- units per tech-hour
+  equipment           TEXT NOT NULL DEFAULT '[]',
+  phase               INTEGER NOT NULL DEFAULT 1,
+  description         TEXT
 );
 
 CREATE TABLE IF NOT EXISTS leads (
-  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name        text NOT NULL,
-  company     text,
-  email       text NOT NULL,
-  phone       text,
-  segment     text NOT NULL DEFAULT 'residential',
-  city        text,
-  stage       lead_stage NOT NULL DEFAULT 'new',
-  value_cents int NOT NULL DEFAULT 0,
-  source      text NOT NULL DEFAULT 'website',
-  notes       text,
-  lat double precision,
-  lng double precision,
-  created_at  timestamptz NOT NULL DEFAULT now(),
-  updated_at  timestamptz NOT NULL DEFAULT now()
+  id          TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  name        TEXT NOT NULL,
+  company     TEXT,
+  email       TEXT NOT NULL,
+  phone       TEXT,
+  segment     TEXT NOT NULL DEFAULT 'residential',
+  city        TEXT,
+  stage       TEXT NOT NULL DEFAULT 'new' CHECK (stage IN ('new','contacted','quoted','won','retained','lost')),
+  value_cents INTEGER NOT NULL DEFAULT 0,
+  source      TEXT NOT NULL DEFAULT 'website',
+  notes       TEXT,
+  lat         REAL,
+  lng         REAL,
+  created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  updated_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
 CREATE TABLE IF NOT EXISTS quotes (
-  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  lead_id     uuid REFERENCES leads(id) ON DELETE SET NULL,
-  client_id   uuid REFERENCES clients(id) ON DELETE SET NULL,
-  input       jsonb NOT NULL,
-  line_items  jsonb NOT NULL,
-  total_cents int NOT NULL,
-  est_hours   numeric(6,2) NOT NULL DEFAULT 0,
-  crew_size   int NOT NULL DEFAULT 2,
-  status      text NOT NULL DEFAULT 'estimated', -- estimated | review | accepted | declined
-  created_at  timestamptz NOT NULL DEFAULT now()
+  id          TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  lead_id     TEXT REFERENCES leads(id) ON DELETE SET NULL,
+  client_id   TEXT REFERENCES clients(id) ON DELETE SET NULL,
+  input       TEXT NOT NULL,
+  line_items  TEXT NOT NULL,
+  total_cents INTEGER NOT NULL,
+  est_hours   REAL NOT NULL DEFAULT 0,
+  crew_size   INTEGER NOT NULL DEFAULT 2,
+  status      TEXT NOT NULL DEFAULT 'estimated', -- estimated | review | accepted | declined
+  created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
 CREATE TABLE IF NOT EXISTS jobs (
-  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id       uuid NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
-  quote_id        uuid REFERENCES quotes(id) ON DELETE SET NULL,
-  crew_id         uuid REFERENCES crews(id) ON DELETE SET NULL,
-  title           text NOT NULL,
-  service         text NOT NULL,
-  address         text NOT NULL,
-  lat             double precision NOT NULL,
-  lng             double precision NOT NULL,
-  scheduled_start timestamptz,
-  quoted_minutes  int NOT NULL DEFAULT 120,
-  actual_minutes  int,
-  crew_size       int NOT NULL DEFAULT 2,
-  equipment       text[] NOT NULL DEFAULT '{}',
-  frequency       text NOT NULL DEFAULT 'one_time',
-  price_cents     int NOT NULL DEFAULT 0,
-  status          job_status NOT NULL DEFAULT 'scheduled',
-  route_order     int,
-  clock_in        timestamptz,
-  clock_out       timestamptz,
-  notes           text,
-  created_at      timestamptz NOT NULL DEFAULT now()
+  id              TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  client_id       TEXT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  quote_id        TEXT REFERENCES quotes(id) ON DELETE SET NULL,
+  crew_id         TEXT REFERENCES crews(id) ON DELETE SET NULL,
+  title           TEXT NOT NULL,
+  service         TEXT NOT NULL,
+  address         TEXT NOT NULL,
+  lat             REAL NOT NULL,
+  lng             REAL NOT NULL,
+  scheduled_start TEXT,
+  quoted_minutes  INTEGER NOT NULL DEFAULT 120,
+  actual_minutes  INTEGER,
+  crew_size       INTEGER NOT NULL DEFAULT 2,
+  equipment       TEXT NOT NULL DEFAULT '[]',
+  frequency       TEXT NOT NULL DEFAULT 'one_time',
+  price_cents     INTEGER NOT NULL DEFAULT 0,
+  status          TEXT NOT NULL DEFAULT 'scheduled' CHECK (status IN ('scheduled','en_route','in_progress','completed','cancelled')),
+  route_order     INTEGER,
+  clock_in        TEXT,
+  clock_out       TEXT,
+  notes           TEXT,
+  created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 CREATE INDEX IF NOT EXISTS jobs_start_idx ON jobs (scheduled_start);
 CREATE INDEX IF NOT EXISTS jobs_client_idx ON jobs (client_id);
 
 CREATE TABLE IF NOT EXISTS job_photos (
-  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  job_id     uuid NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
-  kind       text NOT NULL CHECK (kind IN ('before','after')),
-  data_url   text NOT NULL,
-  taken_by   uuid REFERENCES users(id) ON DELETE SET NULL,
-  created_at timestamptz NOT NULL DEFAULT now()
+  id         TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  job_id     TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  kind       TEXT NOT NULL CHECK (kind IN ('before','after')),
+  data_url   TEXT NOT NULL,
+  taken_by   TEXT REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
 CREATE TABLE IF NOT EXISTS invoices (
-  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  number         serial UNIQUE,
-  client_id      uuid NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
-  job_id         uuid REFERENCES jobs(id) ON DELETE SET NULL,
-  description    text NOT NULL,
-  amount_cents   int NOT NULL,
-  status         text NOT NULL DEFAULT 'open', -- open | paid | void
-  due_date       date NOT NULL DEFAULT (now() + interval '15 days'),
-  paid_at        timestamptz,
-  payment_method text,
-  stripe_session text,
-  created_at     timestamptz NOT NULL DEFAULT now()
+  id             TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  number         INTEGER UNIQUE,
+  client_id      TEXT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  job_id         TEXT REFERENCES jobs(id) ON DELETE SET NULL,
+  description    TEXT NOT NULL,
+  amount_cents   INTEGER NOT NULL,
+  status         TEXT NOT NULL DEFAULT 'open', -- open | paid | void
+  due_date       TEXT NOT NULL DEFAULT (date('now','+15 days')),
+  paid_at        TEXT,
+  payment_method TEXT,
+  stripe_session TEXT,
+  created_at     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
+-- Sequential human-facing invoice numbers.
+CREATE TRIGGER IF NOT EXISTS invoices_number AFTER INSERT ON invoices WHEN NEW.number IS NULL
+BEGIN
+  UPDATE invoices SET number = (SELECT COALESCE(MAX(number), 0) + 1 FROM invoices) WHERE id = NEW.id;
+END;
 
 CREATE TABLE IF NOT EXISTS payment_methods (
-  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id  uuid NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
-  kind       text NOT NULL CHECK (kind IN ('card','ach')),
-  label      text NOT NULL,   -- "Visa •••• 4242" / "Chase checking •••• 6789"
-  is_default boolean NOT NULL DEFAULT false,
-  created_at timestamptz NOT NULL DEFAULT now()
+  id         TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  client_id  TEXT NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  kind       TEXT NOT NULL CHECK (kind IN ('card','ach')),
+  label      TEXT NOT NULL,   -- "Visa •••• 4242" / "Chase checking •••• 6789"
+  is_default INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
 CREATE TABLE IF NOT EXISTS service_zones (
-  id      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name    text NOT NULL,
-  color   text NOT NULL DEFAULT '#22d3ee',
-  phase   int  NOT NULL DEFAULT 1,
-  polygon jsonb NOT NULL,      -- [[lat,lng],...]
-  notes   text
+  id      TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  name    TEXT NOT NULL,
+  color   TEXT NOT NULL DEFAULT '#22d3ee',
+  phase   INTEGER NOT NULL DEFAULT 1,
+  polygon TEXT NOT NULL,      -- [[lat,lng],...]
+  notes   TEXT
 );
 
--- Map intelligence layers. Seeded with anonymized placeholders; replace with field research.
 CREATE TABLE IF NOT EXISTS map_markers (
-  id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  layer     text NOT NULL CHECK (layer IN ('competitor','hotspot','pricing')),
-  label     text NOT NULL,
-  lat       double precision NOT NULL,
-  lng       double precision NOT NULL,
-  radius_m  int NOT NULL DEFAULT 1500,
-  value     numeric NOT NULL DEFAULT 1, -- intensity / price index
-  notes     text
+  id        TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  layer     TEXT NOT NULL CHECK (layer IN ('competitor','hotspot','pricing')),
+  label     TEXT NOT NULL,
+  lat       REAL NOT NULL,
+  lng       REAL NOT NULL,
+  radius_m  INTEGER NOT NULL DEFAULT 1500,
+  value     REAL NOT NULL DEFAULT 1,
+  notes     TEXT
 );
 
 CREATE TABLE IF NOT EXISTS campaigns (
-  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name            text NOT NULL,
-  subject         text NOT NULL,
-  body            text NOT NULL,
-  audience        text NOT NULL DEFAULT 'all', -- all | commercial | residential | <segment>
-  status          text NOT NULL DEFAULT 'draft',
-  recipient_count int NOT NULL DEFAULT 0,
-  sent_at         timestamptz,
-  created_at      timestamptz NOT NULL DEFAULT now()
+  id              TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  name            TEXT NOT NULL,
+  subject         TEXT NOT NULL,
+  body            TEXT NOT NULL,
+  audience        TEXT NOT NULL DEFAULT 'all',
+  status          TEXT NOT NULL DEFAULT 'draft',
+  recipient_count INTEGER NOT NULL DEFAULT 0,
+  sent_at         TEXT,
+  created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
 CREATE TABLE IF NOT EXISTS email_outbox (
-  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  to_email    text NOT NULL,
-  subject     text NOT NULL,
-  body        text NOT NULL,
-  kind        text NOT NULL DEFAULT 'transactional',
-  campaign_id uuid REFERENCES campaigns(id) ON DELETE SET NULL,
-  status      text NOT NULL DEFAULT 'simulated', -- simulated | sent | failed
-  created_at  timestamptz NOT NULL DEFAULT now()
+  id          TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  to_email    TEXT NOT NULL,
+  subject     TEXT NOT NULL,
+  body        TEXT NOT NULL,
+  kind        TEXT NOT NULL DEFAULT 'transactional',
+  campaign_id TEXT REFERENCES campaigns(id) ON DELETE SET NULL,
+  status      TEXT NOT NULL DEFAULT 'simulated',
+  created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
-CREATE INDEX IF NOT EXISTS outbox_created_idx ON email_outbox (created_at DESC);
+CREATE INDEX IF NOT EXISTS outbox_created_idx ON email_outbox (created_at);
 
--- Real competitor intelligence (seeded from data/competitors.json; every fact carries a source URL).
+-- Real competitor intelligence (from data/competitors.json; every fact carries a source URL).
 CREATE TABLE IF NOT EXISTS competitors (
-  id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug               text UNIQUE NOT NULL,
-  name               text NOT NULL,
-  website            text,
-  base_city          text,
-  lat                double precision,
-  lng                double precision,
-  location_precision text NOT NULL DEFAULT 'city',   -- address | city
-  kind               text NOT NULL DEFAULT 'local',  -- local | franchise | national | marketplace
-  focus              text NOT NULL DEFAULT 'mixed',  -- commercial | residential | mixed
-  services_claimed   text[] NOT NULL DEFAULT '{}',
-  services_evidenced text[] NOT NULL DEFAULT '{}',   -- shown in galleries, case studies or third-party reviews
-  prices             jsonb NOT NULL DEFAULT '[]',    -- [{service, text, low, high, unit, source}]
-  strategies         text[] NOT NULL DEFAULT '{}',
-  confidence         text NOT NULL DEFAULT 'medium', -- high | medium | low
-  notes              text,
-  sources            text[] NOT NULL DEFAULT '{}',
-  retrieved_at       date NOT NULL DEFAULT current_date
+  id                 TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  slug               TEXT UNIQUE NOT NULL,
+  name               TEXT NOT NULL,
+  website            TEXT,
+  base_city          TEXT,
+  lat                REAL,
+  lng                REAL,
+  location_precision TEXT NOT NULL DEFAULT 'city',
+  kind               TEXT NOT NULL DEFAULT 'local',
+  focus              TEXT NOT NULL DEFAULT 'mixed',
+  services_claimed   TEXT NOT NULL DEFAULT '[]',
+  services_evidenced TEXT NOT NULL DEFAULT '[]',
+  prices             TEXT NOT NULL DEFAULT '[]',
+  strategies         TEXT NOT NULL DEFAULT '[]',
+  confidence         TEXT NOT NULL DEFAULT 'medium',
+  notes              TEXT,
+  sources            TEXT NOT NULL DEFAULT '[]',
+  retrieved_at       TEXT NOT NULL DEFAULT (date('now'))
 );
 
 -- Competitor quotes shared voluntarily by prospects (price-match offer) or logged by partners.
 CREATE TABLE IF NOT EXISTS market_quotes (
-  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  competitor    text NOT NULL,
-  service       text NOT NULL,
-  quantity      numeric,
-  unit          text,
-  amount_cents  int NOT NULL,
-  city          text,
-  source        text NOT NULL DEFAULT 'prospect', -- prospect | partner | public
-  lead_id       uuid REFERENCES leads(id) ON DELETE SET NULL,
-  notes         text,
-  created_at    timestamptz NOT NULL DEFAULT now()
+  id           TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))),
+  competitor   TEXT NOT NULL,
+  service      TEXT NOT NULL,
+  quantity     REAL,
+  unit         TEXT,
+  amount_cents INTEGER NOT NULL,
+  city         TEXT,
+  source       TEXT NOT NULL DEFAULT 'prospect',
+  lead_id      TEXT REFERENCES leads(id) ON DELETE SET NULL,
+  notes        TEXT,
+  created_at   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );

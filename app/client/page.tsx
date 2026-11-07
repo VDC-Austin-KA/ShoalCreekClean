@@ -13,11 +13,12 @@ export default async function ClientHome() {
   if (!c) return <Empty>No client profile is linked to {s.email} yet. <Link className="text-accent" href="/quote">Request a quote</Link>.</Empty>;
   const jobs = await q(
     `SELECT j.*, cr.name AS crew_name,
-       COALESCE((SELECT json_agg(json_build_object('kind',p.kind,'url',p.data_url,'at',p.created_at) ORDER BY p.created_at) FROM job_photos p WHERE p.job_id=j.id),'[]') AS photos
-     FROM jobs j LEFT JOIN crews cr ON cr.id=j.crew_id WHERE j.client_id=$1 ORDER BY j.scheduled_start DESC NULLS FIRST`, [c.id]);
+       (SELECT json_group_array(json_object('kind',p.kind,'url',p.data_url,'at',p.created_at))
+          FROM (SELECT * FROM job_photos WHERE job_id=j.id ORDER BY created_at) p) AS photos
+     FROM jobs j LEFT JOIN crews cr ON cr.id=j.crew_id WHERE j.client_id=$1 ORDER BY j.scheduled_start IS NOT NULL, j.scheduled_start DESC`, [c.id]);
   const upcoming = jobs.filter((j) => j.status !== "completed" && j.status !== "cancelled").reverse();
   const history = jobs.filter((j) => j.status === "completed");
-  const [{ open }] = await q("SELECT COALESCE(SUM(amount_cents),0)::int AS open FROM invoices WHERE client_id=$1 AND status='open'", [c.id]);
+  const [{ open }] = await q("SELECT COALESCE(SUM(amount_cents),0) AS open FROM invoices WHERE client_id=$1 AND status='open'", [c.id]);
 
   return (
     <div className="space-y-6">
