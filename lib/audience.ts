@@ -1,13 +1,16 @@
 import "server-only";
 import { q } from "./db";
 
-/** Contacts from clients + active leads, deduped by email, filtered by audience. */
+/** Contacts from clients + active leads, deduped by email (client record wins), filtered by audience. */
 export async function audience(aud: string) {
-  const rows = await q(
-    `SELECT DISTINCT ON (email) email, name, company, city, segment FROM (
-       SELECT email, contact_name AS name, company, split_part(address, ', ', 2) AS city, segment, 0 AS pri FROM clients
-       UNION ALL SELECT email, name, company, city, segment, 1 FROM leads WHERE stage <> 'lost') t
+  const rows = await q<{ email: string; name: string; company: string | null; city: string | null; address: string | null; segment: string; pri: number }>(
+    `SELECT email, name, company, city, address, segment, pri FROM (
+       SELECT email, contact_name AS name, company, NULL AS city, address, segment, 0 AS pri FROM clients
+       UNION ALL SELECT email, name, company, city, NULL, segment, 1 FROM leads WHERE stage <> 'lost')
      WHERE ($1 = 'all') OR ($1 = 'commercial' AND segment <> 'residential') OR ($1 = 'residential' AND segment = 'residential') OR segment = $1
      ORDER BY email, pri`, [aud]);
-  return rows as { email: string; name: string; company: string | null; city: string | null; segment: string }[];
+  const seen = new Set<string>();
+  return rows
+    .filter((r) => !seen.has(r.email) && seen.add(r.email))
+    .map((r) => ({ email: r.email, name: r.name, company: r.company, segment: r.segment, city: r.city ?? r.address?.split(", ")[1] ?? null }));
 }

@@ -30,7 +30,7 @@ export const POST = route(async (req, { params }) => {
     return { redirect: s.url };
   }
   // Simulated processor (alpha): charge a saved method.
-  const pm = await one("SELECT label FROM payment_methods WHERE client_id=$1 AND ($2::uuid IS NULL OR id=$2) ORDER BY is_default DESC LIMIT 1", [c.id, methodId ?? null]);
+  const pm = await one("SELECT label FROM payment_methods WHERE client_id=$1 AND ($2 IS NULL OR id=$2) ORDER BY is_default DESC LIMIT 1", [c.id, methodId ?? null]);
   if (!pm) throw bad("Add a payment method first");
   await q("UPDATE invoices SET status='paid', paid_at=now(), payment_method=$2 WHERE id=$1", [inv.id, pm.label]);
   await sendMail(c.email, `Receipt for invoice #${inv.number}`, `Payment of ${usd(inv.amount_cents)} received via ${pm.label}. Download your receipt in the client portal.`, "receipt");

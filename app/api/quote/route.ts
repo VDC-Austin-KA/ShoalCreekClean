@@ -29,7 +29,7 @@ export const POST = route(async (req) => {
   const [lat, lng] = CITY_COORDS[city] ?? CITY_COORDS.Austin;
   const lead = await one(
     `INSERT INTO leads (name,company,email,phone,segment,city,stage,value_cents,source,notes,lat,lng)
-     VALUES ($1,$2,$3,$4,$5,$6,$7::lead_stage,$8,'instant quote',$9,$10,$11) RETURNING id`,
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'instant quote',$9,$10,$11) RETURNING id`,
     [name, str(b.company, 120) || null, email, str(b.phone, 40) || null, str(b.segment, 40) || (input.property === "commercial" ? "storefront" : "residential"),
      city || "Austin", review ? "new" : "quoted", result.total_cents, str(b.notes, 2000) || null, lat, lng],
   );

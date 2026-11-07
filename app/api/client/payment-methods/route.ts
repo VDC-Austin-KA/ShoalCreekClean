@@ -19,7 +19,7 @@ export const POST = route(async (req) => {
     if (num.length < 13 || !luhn(num)) throw bad("Card number is invalid");
     label = `${brand(num)} •••• ${num.slice(-4)}`;
   }
-  const [{ n }] = await q("SELECT count(*)::int AS n FROM payment_methods WHERE client_id=$1", [c.id]);
+  const [{ n }] = await q("SELECT count(*) AS n FROM payment_methods WHERE client_id=$1", [c.id]);
   await q("INSERT INTO payment_methods (client_id,kind,label,is_default) VALUES ($1,$2,$3,$4)", [c.id, b.kind === "ach" ? "ach" : "card", label, n === 0]);
   return { ok: true, label };
 });

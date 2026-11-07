@@ -1,24 +1,29 @@
 import Link from "next/link";
 import { q } from "@/lib/db";
-import { JOB_COLS, todayCT } from "@/lib/admin";
+import { JOB_COLS, todayCT, weekStart, withDay } from "@/lib/admin";
+import { ctDayBounds, ctToUtc } from "@/lib/tz";
 import { Badge, Card, Empty, PageHeader, Stat } from "@/components/ui";
-import { usd } from "@/lib/format";
+import { dt, usd } from "@/lib/format";
 import { ApproveQuote } from "./ApproveQuote";
 
 export const dynamic = "force-dynamic";
 export default async function Overview() {
   const today = todayCT();
+  const [dayFrom, dayTo] = ctDayBounds(today);
+  const [weekFrom, weekTo] = ctDayBounds(weekStart(today), 7);
+  const monthFrom = ctToUtc(today.slice(0, 8) + "01", "00:00");
   const [[k], todays, reviews, leads] = await Promise.all([
     q(`SELECT
-        (SELECT COALESCE(SUM(amount_cents),0) FROM invoices WHERE status='paid' AND paid_at >= date_trunc('month', now()))::int AS mtd,
-        (SELECT COALESCE(SUM(amount_cents),0) FROM invoices WHERE status='open')::int AS ar,
-        (SELECT COUNT(*) FROM jobs WHERE status<>'cancelled' AND scheduled_start >= date_trunc('week', now()) AND scheduled_start < date_trunc('week', now()) + interval '7 days')::int AS week_jobs,
-        (SELECT COALESCE(SUM(value_cents),0) FROM leads WHERE stage IN ('new','contacted','quoted'))::int AS pipeline,
-        (SELECT COUNT(*) FROM jobs WHERE crew_id IS NULL AND status='scheduled')::int AS unassigned,
-        (SELECT ROUND(AVG(actual_minutes::numeric/NULLIF(quoted_minutes,0))*100) FROM jobs WHERE actual_minutes IS NOT NULL)::int AS accuracy`),
+        (SELECT COALESCE(SUM(amount_cents),0) FROM invoices WHERE status='paid' AND paid_at >= $1) AS mtd,
+        (SELECT COALESCE(SUM(amount_cents),0) FROM invoices WHERE status='open') AS ar,
+        (SELECT COUNT(*) FROM jobs WHERE status<>'cancelled' AND scheduled_start >= $2 AND scheduled_start < $3) AS week_jobs,
+        (SELECT COALESCE(SUM(value_cents),0) FROM leads WHERE stage IN ('new','contacted','quoted')) AS pipeline,
+        (SELECT COUNT(*) FROM jobs WHERE crew_id IS NULL AND status='scheduled') AS unassigned,
+        (SELECT CAST(ROUND(AVG(CAST(actual_minutes AS REAL)/NULLIF(quoted_minutes,0))*100) AS INTEGER) FROM jobs WHERE actual_minutes IS NOT NULL) AS accuracy`, [monthFrom, weekFrom, weekTo]),
     q(`SELECT ${JOB_COLS}, cr.name AS crew, cr.color FROM jobs j JOIN clients c ON c.id=j.client_id LEFT JOIN crews cr ON cr.id=j.crew_id
-       WHERE (j.scheduled_start AT TIME ZONE 'America/Chicago')::date=$1::date ORDER BY j.scheduled_start`, [today]),
-    q("SELECT id,total_cents,input,to_char(created_at,'Mon DD') AS created FROM quotes WHERE status='review' ORDER BY created_at DESC"),
+       WHERE j.scheduled_start >= $1 AND j.scheduled_start < $2 ORDER BY j.scheduled_start`, [dayFrom, dayTo]).then(withDay),
+    q("SELECT id,total_cents,input,created_at FROM quotes WHERE status='review' ORDER BY created_at DESC")
+      .then((rows) => rows.map((r) => ({ ...r, created: dt(r.created_at, { month: "short", day: "numeric" }) }))),
     q("SELECT id,name,company,stage,value_cents,source FROM leads ORDER BY created_at DESC LIMIT 6"),
   ]);
   return (

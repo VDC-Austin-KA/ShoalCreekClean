@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { q } from "@/lib/db";
-import { crewsQ, JOB_COLS, weekStart, addDays } from "@/lib/admin";
+import { crewsQ, JOB_COLS, weekStart, addDays, withDay } from "@/lib/admin";
+import { ctDayBounds } from "@/lib/tz";
 import { PageHeader } from "@/components/ui";
 import { DispatchBoard } from "./DispatchBoard";
 
 export const dynamic = "force-dynamic";
 export default async function Dispatch({ searchParams }: { searchParams: Promise<{ week?: string }> }) {
   const start = weekStart((await searchParams).week);
-  const end = addDays(start, 7);
+  const [from, to] = ctDayBounds(start, 7);
   const [crews, jobs, zones, clients] = await Promise.all([
     crewsQ(),
     q(`SELECT ${JOB_COLS} FROM jobs j JOIN clients c ON c.id=j.client_id
-       WHERE j.status <> 'cancelled' AND ((j.scheduled_start AT TIME ZONE 'America/Chicago')::date >= $1::date AND (j.scheduled_start AT TIME ZONE 'America/Chicago')::date < $2::date OR j.scheduled_start IS NULL)
-       ORDER BY j.scheduled_start NULLS LAST`, [start, end]),
+       WHERE j.status <> 'cancelled' AND ((j.scheduled_start >= $1 AND j.scheduled_start < $2) OR j.scheduled_start IS NULL)
+       ORDER BY j.scheduled_start IS NULL, j.scheduled_start`, [from, to]).then(withDay),
     q("SELECT id,name,color,polygon FROM service_zones ORDER BY phase, name"),
     q("SELECT id, COALESCE(company, contact_name) AS name FROM clients ORDER BY 2"),
   ]);

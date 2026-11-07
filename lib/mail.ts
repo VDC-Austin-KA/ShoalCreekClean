@@ -1,16 +1,22 @@
 import "server-only";
 import { q } from "./db";
 
-/** Every email is recorded in email_outbox. Delivered via SMTP only when SMTP_URL is set. */
+/**
+ * Every email is recorded in email_outbox. Real delivery happens only when RESEND_API_KEY is set
+ * (HTTP API — Workers can't speak SMTP); otherwise the message is "simulated" and visible in the Outbox.
+ */
 export async function sendMail(to: string, subject: string, body: string, kind = "transactional", campaignId: string | null = null) {
   let status = "simulated";
-  if (process.env.SMTP_URL) {
+  if (process.env.RESEND_API_KEY) {
     try {
-      const nodemailer = await import("nodemailer");
-      await nodemailer.createTransport(process.env.SMTP_URL).sendMail({ from: process.env.MAIL_FROM, to, subject, text: body });
-      status = "sent";
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { authorization: `Bearer ${process.env.RESEND_API_KEY}`, "content-type": "application/json" },
+        body: JSON.stringify({ from: process.env.MAIL_FROM, to, subject, text: body }),
+      });
+      status = res.ok ? "sent" : "failed";
     } catch (e) {
-      console.error("smtp", e);
+      console.error("email", e);
       status = "failed";
     }
   }

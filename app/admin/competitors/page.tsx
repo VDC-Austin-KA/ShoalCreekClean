@@ -11,7 +11,7 @@ const CONF: Record<string, string> = { high: "paid", medium: "open", low: "faile
 
 export default async function Competitors() {
   const [comps, quotes, rules] = await Promise.all([
-    q<Competitor & any>("SELECT * FROM competitors ORDER BY array_position(ARRAY['high','medium','low'], confidence), name"),
+    q<Competitor & any>("SELECT * FROM competitors ORDER BY CASE confidence WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END, name"),
     q("SELECT * FROM market_quotes ORDER BY created_at DESC LIMIT 100"),
     loadRules(),
   ]);
