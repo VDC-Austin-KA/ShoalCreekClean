@@ -16,9 +16,9 @@ export function FinderControls() {
       <div className="flex flex-wrap gap-2">
         {FINDER_SEGMENTS.map((s) => (
           <button key={s} type="button" onClick={() => setSel(sel.includes(s) ? sel.filter((x) => x !== s) : [...sel, s])}
-            className={cx("chip normal-case tracking-normal", sel.includes(s) ? "border-accent text-accent" : "border-white/10 text-slate-500")}>{SEGMENT_LABEL[s]}</button>
+            className={cx("chip normal-case tracking-normal", sel.includes(s) ? "border-accent text-accent" : "border-ink-700 text-slate-500")}>{SEGMENT_LABEL[s]}</button>
         ))}
-        <button type="button" onClick={() => setCompetitor(!competitor)} className={cx("chip normal-case tracking-normal", competitor ? "border-accent-2 text-accent-2" : "border-white/10 text-slate-500")}>Competitor clients</button>
+        <button type="button" onClick={() => setCompetitor(!competitor)} className={cx("chip normal-case tracking-normal", competitor ? "border-accent-2 text-accent-2" : "border-ink-700 text-slate-500")}>Competitor clients</button>
       </div>
       <div className="flex items-center gap-3">
         <button className="btn-primary btn-sm" onClick={async () => { try { const d = await api("/api/admin/finder", { segments: sel, competitor }); setMsg(`Queued ${d.queued} discovery jobs. Results appear over the next runs (every 10 minutes).`); r.refresh(); } catch (e: any) { setMsg(e.message); } }}>

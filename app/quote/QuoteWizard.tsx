@@ -48,7 +48,7 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
         <ol className="mb-8 flex gap-2">
           {STEPS.map((s, i) => (
             <li key={s} className="flex-1">
-              <div className={cx("h-1 rounded-full transition-all duration-700 ease-(--ease-spring)", i <= step ? "bg-accent" : "bg-white/10")} />
+              <div className={cx("h-1 rounded-full transition-all duration-700 ease-(--ease-spring)", i <= step ? "bg-accent" : "bg-ink-700")} />
               <div className={cx("mt-2 text-xs", i === step ? "text-accent" : "text-slate-500")}>{i + 1}. {s}</div>
             </li>
           ))}
@@ -63,8 +63,7 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
                   {(["commercial", "residential"] as const).map((p) => (
                     <button key={p} type="button" onClick={() => { set("property", p); set("segment", p === "commercial" ? "storefront" : "residential"); }}
                       className={cx("glass lift p-5 text-left capitalize", f.property === p && "border-accent/60 bg-accent/5")}>
-                      <div className="text-2xl">{p === "commercial" ? "🏢" : "🏡"}</div>
-                      <div className="mt-2 font-semibold text-white">{p}</div>
+                                            <div className="mt-2 font-semibold text-white">{p}</div>
                     </button>
                   ))}
                 </div>
@@ -86,7 +85,7 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
           {step === 1 && (
             <div className="space-y-4">
               {items.map((it, idx) => (
-                <div key={idx} className="grid gap-3 rounded-xl border border-white/10 bg-ink-900/50 p-4 sm:grid-cols-[1.4fr_1fr_1fr_auto] sm:items-end">
+                <div key={idx} className="grid gap-3 rounded-xl border border-ink-700 bg-ink-900/50 p-4 sm:grid-cols-[1.4fr_1fr_1fr_auto] sm:items-end">
                   <div><label className="label">Service</label>
                     <select className="input" value={it.service} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, service: e.target.value } : x))}>
                       {rules.map((r) => <option key={r.service} value={r.service}>{r.label}{r.phase > 1 ? " (new)" : ""}</option>)}
@@ -122,7 +121,7 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
                   </select></div>
               </div>
               {f.property === "commercial" && (
-                <label className="flex items-center gap-3 text-sm text-slate-300"><input type="checkbox" className="size-4 accent-cyan-400" checked={f.afterHours} onChange={(e) => set("afterHours", e.target.checked)} /> After-hours / overnight service (+15%)</label>
+                <label className="flex items-center gap-3 text-sm text-slate-300"><input type="checkbox" className="size-4" checked={f.afterHours} onChange={(e) => set("afterHours", e.target.checked)} /> After-hours / overnight service (+15%)</label>
               )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div><label className="label">Your name</label><input className="input" value={f.name} onChange={(e) => set("name", e.target.value)} /></div>
@@ -139,7 +138,7 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
                 </div>
                 <p className="mt-2 text-[11px] text-slate-500">Optional. A partner reviews every price-match request.</p>
               </div>
-              <label className="flex items-center gap-3 text-sm text-slate-300"><input type="checkbox" className="size-4 accent-cyan-400" checked={f.manualReview} onChange={(e) => set("manualReview", e.target.checked)} /> I&apos;d like a partner to review on-site before booking</label>
+              <label className="flex items-center gap-3 text-sm text-slate-300"><input type="checkbox" className="size-4" checked={f.manualReview} onChange={(e) => set("manualReview", e.target.checked)} /> I&apos;d like a partner to review on-site before booking</label>
             </div>
           )}
 
@@ -153,7 +152,7 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
                 </div>
               ) : booked ? (
                 <div className="rounded-xl border border-lime-400/30 bg-lime-400/10 p-5">
-                  <div className="font-semibold text-lime-200">You&apos;re booked for {booked.date} 🎉</div>
+                  <div className="font-semibold text-lime-200">You&apos;re booked for {booked.date}</div>
                   <p className="mt-1 text-sm text-lime-200/70">A portal login link was emailed to {f.email}.</p>
                   {booked.portalLink && <a href={booked.portalLink} className="btn-primary btn-sm mt-3">Open client portal (alpha link)</a>}
                 </div>
@@ -183,7 +182,7 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
       </div>
 
       <aside className="glass h-fit p-6 lg:sticky lg:top-6">
-        <div className="text-xs uppercase tracking-wider text-slate-400">Live estimate</div>
+        <div className="text-xs font-medium text-slate-400">Live estimate</div>
         <div className="mt-1 text-4xl font-semibold text-white tabular-nums transition-all">{usd((done ?? live).total_cents)}</div>
         <ul className="mt-4 space-y-2 text-sm">
           {(done ?? live).line_items.map((l, i) => (
@@ -191,7 +190,7 @@ export function QuoteWizard({ initialType }: { initialType?: string }) {
           ))}
           {(done ?? live).discount_cents > 0 && <li className="flex justify-between text-accent-2"><span>Frequency discount</span><span>−{usd((done ?? live).discount_cents)}</span></li>}
         </ul>
-        <div className="mt-5 grid grid-cols-2 gap-3 border-t border-white/5 pt-4 text-xs text-slate-500">
+        <div className="mt-5 grid grid-cols-2 gap-3 border-t border-ink-700 pt-4 text-xs text-slate-500">
           <div>On-site time<div className="text-sm text-slate-200">~{live.est_hours} hr</div></div>
           <div>Crew size<div className="text-sm text-slate-200">{live.crew_size} tech{live.crew_size > 1 && "s"}</div></div>
         </div>

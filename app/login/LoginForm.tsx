@@ -28,7 +28,7 @@ export function LoginForm({ next, alpha }: { next?: string; alpha: boolean }) {
     <div className="glass w-full max-w-md p-8 animate-rise">
       <div className="mb-6 grid grid-cols-2 rounded-xl bg-ink-900 p-1 text-sm">
         {(["password", "magic"] as const).map((m) => (
-          <button key={m} type="button" onClick={() => setMode(m)} className={cx("rounded-lg py-2 transition-all duration-300", mode === m ? "bg-white/10 text-white" : "text-slate-500")}>
+          <button key={m} type="button" onClick={() => setMode(m)} className={cx("rounded-lg py-2 transition-all duration-300", mode === m ? "bg-ink-700 text-white" : "text-slate-500")}>
             {m === "password" ? "Password" : "Magic link"}
           </button>
         ))}
@@ -41,8 +41,8 @@ export function LoginForm({ next, alpha }: { next?: string; alpha: boolean }) {
       {msg && <p className={cx("mt-4 text-sm", msg.ok ? "text-lime-300" : "text-rose-400")}>{msg.text}</p>}
       {msg?.link && <a className="mt-2 block break-all text-xs text-accent underline" href={msg.link}>Alpha mode: open magic link</a>}
       {alpha && (
-        <div className="mt-6 border-t border-white/5 pt-5">
-          <div className="text-xs uppercase tracking-wider text-slate-500">Alpha demo accounts · password alpha2026!</div>
+        <div className="mt-6 border-t border-ink-700 pt-5">
+          <div className="text-xs font-medium text-slate-500">Alpha demo accounts · password alpha2026!</div>
           <div className="mt-3 flex flex-wrap gap-2">
             {[["Partner (admin)", "ops@shoalcreek.test"], ["Crew lead", "alpha@shoalcreek.test"], ["Commercial client", "client@shoalcreek.test"], ["Residential client", "home@shoalcreek.test"]].map(([l, e]) => (
               <button key={e} type="button" className="btn-ghost btn-sm" onClick={() => demo(e)}>{l}</button>

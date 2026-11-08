@@ -197,9 +197,9 @@ await step("field: en route → clock in → photos → complete", async () => {
   await job.getByRole("button", { name: /Complete/ }).waitFor();
   const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64");
   await job.locator('input[type=file]').nth(0).setInputFiles({ name: "b.png", mimeType: "image/png", buffer: png });
-  await job.getByText("before (1)").waitFor();
+  await job.getByText("Before photos (1)").waitFor();
   await job.locator('input[type=file]').nth(1).setInputFiles({ name: "a.png", mimeType: "image/png", buffer: png });
-  await job.getByText("after (1)").waitFor();
+  await job.getByText("After photos (1)").waitFor();
   await snap(p, "10-field");
   await job.getByRole("button", { name: /Complete/ }).click();
   await job.getByText("completed").waitFor();

@@ -1,52 +1,104 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
+/*
+ * Shoal Creek Clean design tokens. Restrained dark interface, one muted blue-gray accent.
+ * Tailwind's built-in palettes that pages already use (slate, lime, amber, rose, violet, cyan, pink) are
+ * remapped here to the brand palette, so every page inherits the system without per-page edits.
+ */
 @theme {
-  --color-ink-950: #07090d;
-  --color-ink-900: #0b0f15;
-  --color-ink-850: #10151d;
-  --color-ink-800: #151b25;
-  --color-ink-700: #1f2733;
-  --color-ink-600: #2c3645;
-  --color-accent: #22d3ee;
-  --color-accent-2: #a3e635;
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  /* Spring-physics approximation (critically under-damped) via linear() easing */
-  --ease-spring: linear(0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1);
-  --animate-rise: rise 0.6s var(--ease-spring) both;
-  --animate-shimmer: shimmer 1.4s linear infinite;
+  /* Surfaces */
+  --color-ink-950: #101114; /* primary background */
+  --color-ink-900: #17191e; /* secondary background / cards */
+  --color-ink-850: #1a1c21;
+  --color-ink-800: #1d2026; /* elevated surfaces, inputs */
+  --color-ink-700: #30333a; /* subtle borders */
+  --color-ink-600: #3c4048; /* stronger borders, hover */
+
+  /* Brand */
+  --color-accent: #8da9b8;       /* muted blue-gray: actions, active nav, selection */
+  --color-accent-hover: #a7beca;
+  --color-accent-2: #70b48a;     /* positive highlight (= success) */
+
+  /* Text: neutral, not blue-tinted */
+  --color-white: #f5f5f7;
+  --color-slate-50: #fafafa;
+  --color-slate-100: #f5f5f7;    /* primary text */
+  --color-slate-200: #e4e4e7;
+  --color-slate-300: #d4d4d8;
+  --color-slate-400: #a1a1aa;    /* secondary text */
+  --color-slate-500: #71717a;    /* muted text */
+  --color-slate-600: #52525b;
+  --color-slate-700: #3f3f46;
+  --color-slate-800: #27272a;
+  --color-slate-900: #18181b;
+
+  /* Status: success / warning / error / review, all desaturated */
+  --color-lime-200: #cfe5d6;
+  --color-lime-300: #9fcbb0;
+  --color-lime-400: #70b48a;
+  --color-lime-500: #5c9a74;
+  --color-amber-200: #efdcbe;
+  --color-amber-300: #e3c290;
+  --color-amber-400: #d6aa68;
+  --color-rose-200: #f0cfcf;
+  --color-rose-300: #e4a6a6;
+  --color-rose-400: #d77d7d;
+  --color-violet-200: #dcd8e8;
+  --color-violet-300: #bfb8d4;
+  --color-violet-400: #9e95bd;
+  --color-cyan-400: #8da9b8;
+  --color-pink-400: #b89aa6;
+
+  /* Shape: tighter radii everywhere (cards 10px, controls 8px) */
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+
+  /* System fonts only: no web-font download */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --ease-spring: cubic-bezier(0.2, 0, 0, 1); /* kept for existing class names; now a standard ease-out */
+  --animate-rise: rise 180ms cubic-bezier(0.2, 0, 0, 1) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
 }
-@keyframes rise { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
 
 :root { color-scheme: dark; }
-html, body { background: var(--color-ink-950); color: #e5e9f0; }
-body {
-  background-image:
-    radial-gradient(60rem 40rem at 85% -10%, rgb(34 211 238 / 0.08), transparent 60%),
-    radial-gradient(50rem 30rem at -10% 10%, rgb(163 230 53 / 0.05), transparent 60%);
-  background-attachment: fixed;
-  -webkit-font-smoothing: antialiased;
-}
-::selection { background: rgb(34 211 238 / 0.35); }
+html, body { background: var(--color-ink-950); color: var(--color-slate-200); }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "tnum" 0; }
+::selection { background: rgb(141 169 184 / 0.32); }
 * { scrollbar-width: thin; scrollbar-color: var(--color-ink-600) transparent; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--color-accent); }
+:focus-visible { outline: 2px solid rgb(141 169 184 / 0.6); outline-offset: 2px; }
 
-@utility glass { @apply rounded-2xl border border-white/[0.07] bg-white/[0.035] backdrop-blur-xl shadow-[0_1px_0_0_rgb(255_255_255/0.04)_inset,0_20px_40px_-20px_rgb(0_0_0/0.6)]; }
-@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-[transform,background-color,box-shadow,opacity] duration-300 ease-(--ease-spring) active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none select-none; }
-@utility btn-primary { @apply btn bg-accent text-ink-950 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-10px_var(--color-accent)]; }
-@utility btn-ghost { @apply btn border border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.08] hover:-translate-y-0.5; }
-@utility btn-sm { @apply px-3 py-1.5 text-xs rounded-lg; }
-@utility input { @apply w-full rounded-xl border border-white/10 bg-ink-900/80 px-3.5 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-accent/60 focus:ring-4 focus:ring-accent/10; }
-@utility label { @apply mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400; }
-@utility chip { @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide; }
-@utility skeleton { @apply rounded-xl bg-[linear-gradient(90deg,var(--color-ink-800)_25%,var(--color-ink-700)_50%,var(--color-ink-800)_75%)] bg-[length:200%_100%] animate-shimmer; }
-@utility lift { @apply transition-[transform,box-shadow,border-color] duration-500 ease-(--ease-spring) hover:-translate-y-1 hover:border-accent/30; }
-@utility headline { @apply font-semibold tracking-tight text-white; }
+/* Shared component utilities (class names unchanged so pages inherit) */
+@utility glass { @apply rounded-2xl border border-ink-700 bg-ink-900; }
+@utility btn { @apply inline-flex min-h-9 py-2 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors duration-150 disabled:opacity-50 disabled:pointer-events-none select-none; }
+@utility btn-primary { @apply btn bg-accent text-ink-950 hover:bg-accent-hover active:bg-accent; }
+@utility btn-ghost { @apply btn border border-ink-700 bg-ink-800 text-slate-200 hover:border-ink-600 hover:bg-ink-700/60; }
+@utility btn-sm { @apply min-h-7 py-1 px-2.5 text-xs rounded-md; }
+@utility input { @apply w-full rounded-lg border border-ink-700 bg-ink-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition-colors duration-150 hover:border-ink-600 focus:border-accent focus:ring-2 focus:ring-accent/20; }
+@utility label { @apply mb-1.5 block text-xs font-medium text-slate-400; }
+@utility chip { @apply inline-flex items-center gap-1 rounded-md border px-1.5 py-px text-[11px] font-medium leading-5 whitespace-nowrap; }
+@utility skeleton { @apply rounded-2xl bg-[linear-gradient(90deg,var(--color-ink-900)_25%,var(--color-ink-800)_50%,var(--color-ink-900)_75%)] bg-[length:200%_100%] animate-shimmer; }
+@utility lift { @apply transition-colors duration-150 hover:border-ink-600; }
+@utility headline { @apply font-semibold tracking-tight text-slate-100; }
 
-/* Leaflet dark polish */
+/* Respect reduced-motion preferences everywhere */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Leaflet: match the surfaces */
 .leaflet-container { background: var(--color-ink-900); font-family: var(--font-sans); }
-.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--color-ink-800); color: #e5e9f0; border: 1px solid rgb(255 255 255 / 0.08); }
-.leaflet-control-zoom a { background: var(--color-ink-800) !important; color: #e5e9f0 !important; border-color: rgb(255 255 255 / 0.08) !important; }
-.leaflet-control-attribution { background: rgb(7 9 13 / 0.7) !important; color: #64748b !important; }
-.leaflet-control-attribution a { color: #94a3b8 !important; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--color-ink-800); color: var(--color-slate-200); border: 1px solid var(--color-ink-700); box-shadow: none; border-radius: 8px; }
+.leaflet-popup-content a { color: var(--color-accent); }
+.leaflet-control-zoom a { background: var(--color-ink-800) !important; color: var(--color-slate-200) !important; border-color: var(--color-ink-700) !important; }
+.leaflet-bar { border: 1px solid var(--color-ink-700) !important; box-shadow: none !important; }
+.leaflet-control-attribution { background: rgb(16 17 20 / 0.8) !important; color: var(--color-slate-500) !important; }
+.leaflet-control-attribution a { color: var(--color-slate-400) !important; }
 @media print { body { background: white !important; color: black !important; } .no-print { display: none !important; } }

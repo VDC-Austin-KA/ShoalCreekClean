@@ -21,7 +21,7 @@ export default async function Planner({ searchParams }: { searchParams: Promise<
       </div>
       <Card title="Proposed assignments">
         {plan.assignments.length ? (
-          <ul className="divide-y divide-white/5">
+          <ul className="divide-y divide-ink-700">
             {plan.assignments.map((a) => {
               const j = byId.get(a.job_id)!;
               return (
@@ -37,7 +37,7 @@ export default async function Planner({ searchParams }: { searchParams: Promise<
       <div className="grid gap-4 lg:grid-cols-3">
         {plan.routes.map((r) => (
           <Card key={r.crew.id} title={<span className="flex items-center gap-2"><span className="size-2.5 rounded-full" style={{ background: r.crew.color }} />{r.crew.name}</span>}>
-            <div className="mb-3 h-2 overflow-hidden rounded-full bg-white/5"><div className={cx("h-full rounded-full transition-all duration-700", r.utilization > 100 ? "bg-rose-400" : "bg-accent")} style={{ width: `${Math.min(100, r.utilization)}%` }} /></div>
+            <div className="mb-3 h-2 overflow-hidden rounded-full bg-ink-800"><div className={cx("h-full rounded-full transition-all duration-700", r.utilization > 100 ? "bg-rose-400" : "bg-accent")} style={{ width: `${Math.min(100, r.utilization)}%` }} /></div>
             <div className="mb-3 text-xs text-slate-500">{r.utilization}% of 9h shift · {Math.round(r.workMinutes / 6) / 10}h work · {r.minutes} min / {r.km} km driving</div>
             <ol className="space-y-1.5 text-sm">{r.stops.map((s, i) => <li key={s.id} className="flex gap-2"><span className="text-slate-600">{i + 1}.</span><span className="truncate text-slate-300">{s.title}</span></li>)}</ol>
             {!r.stops.length && <p className="text-xs text-slate-600">No stops</p>}

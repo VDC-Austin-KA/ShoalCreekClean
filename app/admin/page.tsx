@@ -39,12 +39,12 @@ export default async function Overview() {
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <Card title="Today's jobs" action={<Link href="/field" className="text-xs text-accent">Field view →</Link>}>
           {todays.length ? (
-            <ul className="divide-y divide-white/5">
+            <ul className="divide-y divide-ink-700">
               {todays.map((j) => (
                 <li key={j.id} className="flex items-center justify-between gap-3 py-3 text-sm">
                   <div className="flex min-w-0 items-center gap-3">
                     <span className="w-16 shrink-0 text-xs text-slate-500">{j.time}</span>
-                    <span className="size-2 shrink-0 rounded-full" style={{ background: j.color ?? "#64748b" }} />
+                    <span className="size-2 shrink-0 rounded-full" style={{ background: j.color ?? "#52525b" }} />
                     <div className="min-w-0"><div className="truncate text-slate-200">{j.title}</div><div className="truncate text-xs text-slate-500">{j.client} · {j.crew ?? "Unassigned"}</div></div>
                   </div>
                   <Badge status={j.status} />
@@ -57,7 +57,7 @@ export default async function Overview() {
           <Card title={`Quote review queue (${reviews.length})`}>
             {reviews.length ? (
               <ul className="space-y-3">{reviews.map((r) => (
-                <li key={r.id} className="rounded-xl border border-white/5 bg-ink-900/50 p-3 text-sm">
+                <li key={r.id} className="rounded-xl border border-ink-700 bg-ink-900/50 p-3 text-sm">
                   <div className="flex justify-between"><span className="text-slate-200">{r.input.company || r.input.name}</span><span className="tabular-nums">{usd(r.total_cents)}</span></div>
                   <div className="text-xs text-slate-500">{r.input.city} · {r.input.stories}-story · {r.input.frequency.replace("_", " ")} · {r.created}</div>
                   <ApproveQuote id={r.id} total={r.total_cents / 100} />
@@ -65,7 +65,7 @@ export default async function Overview() {
             ) : <Empty>Nothing to review.</Empty>}
           </Card>
           <Card title="Newest leads" action={<Link href="/admin/crm" className="text-xs text-accent">Pipeline →</Link>}>
-            <ul className="space-y-2 text-sm">{leads.map((l) => <li key={l.id} className="flex justify-between gap-2"><span className="truncate text-slate-300">{l.company ?? l.name} <span className="text-xs text-slate-600">· {l.source}</span></span><span className="chip border-white/10 text-slate-400">{l.stage}</span></li>)}</ul>
+            <ul className="space-y-2 text-sm">{leads.map((l) => <li key={l.id} className="flex justify-between gap-2"><span className="truncate text-slate-300">{l.company ?? l.name} <span className="text-xs text-slate-600">· {l.source}</span></span><span className="chip border-ink-700 text-slate-400">{l.stage}</span></li>)}</ul>
           </Card>
         </div>
       </div>

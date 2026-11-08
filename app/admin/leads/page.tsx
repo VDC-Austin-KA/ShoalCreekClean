@@ -37,23 +37,23 @@ export default async function LeadFinder({ searchParams }: { searchParams: Promi
       <Card title="Leads" action={
         <div className="flex flex-wrap gap-1.5 text-xs">
           {[["", "All"], ...SEGMENTS.filter((s) => s !== "residential" && s !== "hoa").map((s) => [s, SEGMENT_LABEL[s]])].map(([s, label]) => (
-            <Link key={s} href={qs({ segment: s })} className={cx("chip", (sp.segment ?? "") === s ? "border-accent text-accent" : "border-white/10 text-slate-400")}>{label}</Link>
+            <Link key={s} href={qs({ segment: s })} className={cx("chip", (sp.segment ?? "") === s ? "border-accent text-accent" : "border-ink-700 text-slate-400")}>{label}</Link>
           ))}
-          <Link href={qs({ origin: sp.origin === "competitor-site" ? "" : "competitor-site" })} className={cx("chip", sp.origin === "competitor-site" ? "border-accent-2 text-accent-2" : "border-white/10 text-slate-400")}>Competitor clients</Link>
-          <Link href={qs({ min: min ? "" : "50" })} className={cx("chip", min ? "border-accent-2 text-accent-2" : "border-white/10 text-slate-400")}>Fit ≥ 50</Link>
+          <Link href={qs({ origin: sp.origin === "competitor-site" ? "" : "competitor-site" })} className={cx("chip", sp.origin === "competitor-site" ? "border-accent-2 text-accent-2" : "border-ink-700 text-slate-400")}>Competitor clients</Link>
+          <Link href={qs({ min: min ? "" : "50" })} className={cx("chip", min ? "border-accent-2 text-accent-2" : "border-ink-700 text-slate-400")}>Fit ≥ 50</Link>
         </div>}>
         {rows.length ? (
           <div className="overflow-x-auto"><table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wider text-slate-500"><tr><th className="py-2">Fit</th><th>Business</th><th>Segment</th><th>Contact</th><th>Reach</th><th>Status</th></tr></thead>
-            <tbody className="divide-y divide-white/5">
+            <thead className="text-left text-xs font-medium text-slate-500"><tr><th className="py-2">Fit</th><th>Business</th><th>Segment</th><th>Contact</th><th>Reach</th><th>Status</th></tr></thead>
+            <tbody className="divide-y divide-ink-700">
               {rows.map((r) => (
-                <tr key={r.id} className={cx("transition-colors hover:bg-white/[0.02]", r.dnc && "opacity-40")}>
-                  <td className="py-2.5"><span className={cx("chip tabular-nums", r.fit_score >= 70 ? "border-lime-400/40 text-lime-300" : r.fit_score >= 45 ? "border-accent/40 text-accent" : "border-white/10 text-slate-400")}>{r.fit_score}</span></td>
+                <tr key={r.id} className={cx("transition-colors hover:bg-ink-850", r.dnc && "opacity-40")}>
+                  <td className="py-2.5"><span className={cx("chip tabular-nums", r.fit_score >= 70 ? "border-lime-400/40 text-lime-300" : r.fit_score >= 45 ? "border-accent/40 text-accent" : "border-ink-700 text-slate-400")}>{r.fit_score}</span></td>
                   <td><Link href={`/admin/leads/${r.id}`} className="font-medium text-slate-100 hover:text-accent">{r.company}</Link>
                     <div className="text-xs text-slate-500">{r.city}{r.competitor ? <span className="text-accent-2"> · {r.competitor} client</span> : ""}</div></td>
                   <td className="text-slate-400">{SEGMENT_LABEL[r.segment] ?? r.segment}</td>
                   <td className="text-slate-300">{r.people[0] ? `${r.people[0].name}` : "—"}<div className="text-xs text-slate-500">{r.people[0]?.title}</div></td>
-                  <td className="whitespace-nowrap text-xs text-slate-400">{r.emails.length ? "✉ " : ""}{r.phones.length ? "☎ " : ""}{r.website ? "🌐" : ""}{!r.emails.length && !r.phones.length && !r.website ? "research" : ""}</td>
+                  <td className="whitespace-nowrap text-xs text-slate-400">{[r.emails.length && "Email", r.phones.length && "Phone", r.website && "Web"].filter(Boolean).join(" · ") || "Research"}</td>
                   <td className="text-xs text-slate-500">{r.dnc ? "do not contact" : r.stage === "new" ? r.status.replace("_", " ") : r.stage}</td>
                 </tr>
               ))}

@@ -7,7 +7,7 @@ import { CITIES } from "@/lib/content";
 import { cx } from "@/components/ui";
 
 type Lead = { id: string; name: string; company: string | null; email: string; segment: string; city: string; stage: string; value_cents: number; source: string; notes: string | null; updated: string };
-const STAGES = [["new", "New lead", "#94a3b8"], ["contacted", "Contacted", "#fbbf24"], ["quoted", "Quoted", "#22d3ee"], ["won", "Won", "#a3e635"], ["retained", "Retained", "#34d399"], ["lost", "Lost", "#fb7185"]] as const;
+const STAGES = [["new", "New lead", "#71717a"], ["contacted", "Contacted", "#d6aa68"], ["quoted", "Quoted", "#8da9b8"], ["won", "Won", "#70b48a"], ["retained", "Retained", "#5c9a74"], ["lost", "Lost", "#d77d7d"]] as const;
 
 export function Pipeline({ leads: init }: { leads: Lead[] }) {
   const router = useRouter();
@@ -35,17 +35,17 @@ export function Pipeline({ leads: init }: { leads: Lead[] }) {
               onClick={() => selected && move(selected, key)}
               className={cx("glass min-h-96 p-3 transition-colors duration-200", over === key && "border-accent/40 bg-accent/5")}>
               <div className="mb-3 flex items-center justify-between">
-                <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-300"><span className="size-2 rounded-full" style={{ background: color }} />{label}</span>
+                <span className="flex items-center gap-2 text-xs font-semibold font-medium text-slate-300"><span className="size-2 rounded-full" style={{ background: color }} />{label}</span>
                 <span className="text-xs text-slate-500">{col.length} · {usd(col.reduce((s, l) => s + l.value_cents, 0))}</span>
               </div>
               <div className="space-y-2">
                 {col.map((l) => (
                   <div key={l.id} draggable onDragStart={() => setDrag(l.id)} onDragEnd={() => setDrag(null)} onClick={(e) => { e.stopPropagation(); setSelected(selected === l.id ? null : l.id); }}
-                    className={cx("cursor-grab rounded-xl border bg-ink-800/90 p-3 text-sm transition-all duration-300 ease-(--ease-spring) hover:-translate-y-0.5", drag === l.id && "opacity-40", selected === l.id ? "border-accent" : "border-white/10")}>
+                    className={cx("cursor-grab rounded-xl border bg-ink-800/90 p-3 text-sm transition-all duration-300 ease-(--ease-spring)", drag === l.id && "opacity-40", selected === l.id ? "border-accent" : "border-ink-700")}>
                     <div className="font-medium text-slate-100">{l.company ?? l.name}</div>
                     <div className="text-xs text-slate-500">{l.name} · {l.city}</div>
                     <div className="mt-2 flex items-center justify-between text-xs">
-                      <span className="chip border-white/10 text-slate-400">{SEGMENT_LABEL[l.segment] ?? l.segment}</span>
+                      <span className="chip border-ink-700 text-slate-400">{SEGMENT_LABEL[l.segment] ?? l.segment}</span>
                       <span className="font-semibold tabular-nums text-slate-200">{usd(l.value_cents)}</span>
                     </div>
                     <div className="mt-1 flex justify-between text-[10px] text-slate-600"><span>{l.source} · {l.updated}</span><a href={`/admin/leads/${l.id}`} draggable={false} onClick={(e) => e.stopPropagation()} className="text-accent hover:underline">Brief →</a></div>

@@ -44,8 +44,8 @@ export function Methods({ methods }: { methods: M[] }) {
     <div className="grid gap-6 md:grid-cols-2">
       <ul className="space-y-2">
         {methods.map((m) => (
-          <li key={m.id} className="flex items-center justify-between rounded-xl border border-white/5 bg-ink-900/50 px-4 py-3 text-sm">
-            <span>{m.kind === "ach" ? "🏦" : "💳"} {m.label} {m.is_default && <span className="chip ml-2 border-accent/30 text-accent">default</span>}</span>
+          <li key={m.id} className="flex items-center justify-between rounded-xl border border-ink-700 bg-ink-900/50 px-4 py-3 text-sm">
+            <span><span className="text-slate-500">{m.kind === "ach" ? "Bank" : "Card"}</span> {m.label} {m.is_default && <span className="chip ml-2 border-accent/30 text-accent">default</span>}</span>
             <button className="text-xs text-slate-500 hover:text-rose-400" onClick={async () => { await api("/api/client/payment-methods", { id: m.id }, "DELETE"); r.refresh(); }}>Remove</button>
           </li>
         ))}
@@ -53,7 +53,7 @@ export function Methods({ methods }: { methods: M[] }) {
       </ul>
       <form onSubmit={add} className="space-y-3">
         <div className="grid grid-cols-2 rounded-xl bg-ink-900 p-1 text-xs">
-          {(["card", "ach"] as const).map((k) => <button type="button" key={k} onClick={() => setKind(k)} className={cx("rounded-lg py-1.5", kind === k ? "bg-white/10 text-white" : "text-slate-500")}>{k === "card" ? "Credit card" : "Bank (ACH)"}</button>)}
+          {(["card", "ach"] as const).map((k) => <button type="button" key={k} onClick={() => setKind(k)} className={cx("rounded-lg py-1.5", kind === k ? "bg-ink-700 text-white" : "text-slate-500")}>{k === "card" ? "Credit card" : "Bank (ACH)"}</button>)}
         </div>
         {kind === "card" ? (
           <>

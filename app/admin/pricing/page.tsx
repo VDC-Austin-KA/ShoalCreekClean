@@ -14,8 +14,8 @@ export default async function Pricing() {
       <PageHeader title="Price book" sub="Base rates drive the public instant-quote engine. Edits apply immediately." />
       <Card title="Service rates">
         <div className="overflow-x-auto"><table className="w-full text-sm">
-          <thead className="text-left text-xs uppercase tracking-wider text-slate-500"><tr><th className="py-2">Service</th><th>Rate ($/unit)</th><th>Minimum ($)</th><th>Units / tech-hr</th><th>Phase</th><th /></tr></thead>
-          <tbody className="divide-y divide-white/5">{rules.map((r) => <RuleRow key={r.service} rule={r} />)}</tbody>
+          <thead className="text-left text-xs font-medium text-slate-500"><tr><th className="py-2">Service</th><th>Rate ($/unit)</th><th>Minimum ($)</th><th>Units / tech-hr</th><th>Phase</th><th /></tr></thead>
+          <tbody className="divide-y divide-ink-700">{rules.map((r) => <RuleRow key={r.service} rule={r} />)}</tbody>
         </table></div>
       </Card>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
