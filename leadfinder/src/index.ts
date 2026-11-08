@@ -13,6 +13,8 @@ type D1 = { prepare(sql: string): { bind(...v: unknown[]): { all<T = any>(): Pro
 type Env = { DB: D1; FINDER_KEY?: string; OVERPASS_URL?: string };
 const UA = "ShoalCreekCleanLeadFinder/1.0 (+https://wash.ackerworks.com/bot)";
 const FETCH_BUDGET = 40, ENRICH_PER_RUN = 6;
+// Ordered by what answers from Cloudflare's network (probed 2026-11-08): the mail.ru mirror works; the others mostly refuse Workers.
+const OVERPASS_MIRRORS = ["https://maps.mail.ru/osm/tools/overpass/api/interpreter", "https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
 const q = <T = any>(env: Env, sql: string, ...v: unknown[]) => env.DB.prepare(sql).bind(...v).all<T>().then((r) => r.results);
 const run = (env: Env, sql: string, ...v: unknown[]) => env.DB.prepare(sql).bind(...v).run();
 
@@ -20,17 +22,21 @@ function budgeted() {
   let left = FETCH_BUDGET;
   return {
     get left() { return left; },
-    async get(url: string, init: RequestInit = {}) {
+    async get(url: string, init: RequestInit = {}, timeoutMs = 10_000) {
       if (left-- <= 0) throw new Error("fetch budget exhausted");
-      return fetch(url, { ...init, headers: { "user-agent": UA, accept: "text/html,application/json;q=0.9,*/*;q=0.5", ...(init.headers ?? {}) }, signal: AbortSignal.timeout(10_000), redirect: "follow" });
+      return fetch(url, { ...init, headers: { "user-agent": UA, accept: "text/html,application/json;q=0.9,*/*;q=0.5", ...(init.headers ?? {}) }, signal: AbortSignal.timeout(timeoutMs), redirect: "follow" });
     },
   };
 }
 type Net = ReturnType<typeof budgeted>;
 
+let lastPageError = "";
+/** Site is dead, bot-protected or has no HTML homepage: record it, don't retry (and never try to get around a block). */
+class Unreachable extends Error {}
 async function pageHtml(net: Net, url: string): Promise<{ html: string; url: string } | null> {
   const r = await net.get(url);
-  if (!r.ok || !(r.headers.get("content-type") ?? "").includes("html")) return null;
+  const type = r.headers.get("content-type") ?? "";
+  if (!r.ok || !type.includes("html")) { lastPageError = `HTTP ${r.status} ${type.split(";")[0] || "no content-type"} at ${new URL(r.url || url).hostname}`; return null; }
   return { html: (await r.text()).slice(0, 400_000), url: r.url || url };
 }
 
@@ -75,8 +81,19 @@ async function insertCandidates(env: Env, rows: { lead: any; intel: any; enrich:
 }
 
 async function discover(env: Env, net: Net, segment: string, zones: Zone[]) {
-  const r = await net.get(env.OVERPASS_URL || "https://overpass-api.de/api/interpreter", { method: "POST", body: new URLSearchParams({ data: overpassQuery(segment) }), headers: { "content-type": "application/x-www-form-urlencoded" } });
-  if (!r.ok) throw new Error(`overpass ${r.status}`);
+  // Public Overpass mirrors; some refuse Cloudflare's egress, so fall through until one answers.
+  const endpoints = env.OVERPASS_URL ? [env.OVERPASS_URL] : OVERPASS_MIRRORS;
+  let r: Response | null = null;
+  const errors: string[] = [];
+  for (const ep of endpoints) {
+    if (net.left < 6) break;
+    try {
+      r = await net.get(ep, { method: "POST", body: new URLSearchParams({ data: overpassQuery(segment) }), headers: { "content-type": "application/x-www-form-urlencoded" } }, 55_000);
+      if (r.ok) break;
+      errors.push(`${new URL(ep).hostname} ${r.status}`); r = null;
+    } catch (e) { errors.push(`${new URL(ep).hostname} ${(e as Error).message}`); }
+  }
+  if (!r) throw new Error(`overpass: ${errors.join("; ")}`);
   const els = ((await r.json()) as { elements: OsmElement[] }).elements;
   const suppressed = new Set((await q(env, "SELECT contact FROM suppressions")).map((s) => s.contact));
   const rows = els.map((el) => mapElement(el, segment)).filter((c) => c !== null).map((c) => {
@@ -132,8 +149,9 @@ async function enrich(env: Env, net: Net, leadId: string, zones: Zone[]) {
   const origin = new URL(row.website).origin;
   const robots = await net.get(`${origin}/robots.txt`).then((r) => (r.ok ? r.text() : "")).catch(() => "");
   if (!robotsAllows(robots, new URL(row.website).pathname || "/")) { await run(env, "UPDATE lead_intel SET status='blocked_by_robots', enriched_at=?2 WHERE lead_id=?1", leadId, new Date().toISOString()); return "robots"; }
-  const home = await pageHtml(net, row.website);
-  if (!home) throw new Error("homepage not reachable or not HTML");
+  let home = await pageHtml(net, row.website);
+  if (!home && /^HTTP 52[56]/.test(lastPageError) && row.website.startsWith("https://")) home = await pageHtml(net, row.website.replace(/^https:/, "http:")); // broken TLS cert
+  if (!home) throw new Unreachable(`homepage unavailable: ${lastPageError}`);
   const facts = [extractFacts(home.html, home.url)];
   for (const link of facts[0].links.filter((l) => robotsAllows(robots, new URL(l).pathname)).slice(0, 2)) {
     const p = await pageHtml(net, link).catch(() => null);
@@ -141,8 +159,10 @@ async function enrich(env: Env, net: Net, leadId: string, zones: Zone[]) {
   }
   const suppressed = new Set((await q(env, "SELECT contact FROM suppressions")).map((s) => s.contact));
   const uniq = <T extends { value?: string; name?: string }>(xs: T[]) => xs.filter((x, i) => xs.findIndex((y) => (y.value ?? y.name) === (x.value ?? x.name)) === i);
-  const emails = uniq([...JSON.parse(row.emails), ...facts.flatMap((f) => f.emails)]).filter((e) => !suppressed.has(e.value)).slice(0, 5);
-  const phones = uniq([...JSON.parse(row.phones), ...facts.flatMap((f) => f.phones)]).filter((p) => !suppressed.has(p.value)).slice(0, 4);
+  // Website-derived contacts are rebuilt on every read (idempotent); only OpenStreetMap-sourced ones carry over.
+  const fromOsm = (xs: Found[]) => xs.filter((x) => x.source.includes("openstreetmap.org"));
+  const emails = uniq([...fromOsm(JSON.parse(row.emails)), ...facts.flatMap((f) => f.emails)]).filter((e) => !suppressed.has(e.value)).slice(0, 5);
+  const phones = uniq([...fromOsm(JSON.parse(row.phones)), ...facts.flatMap((f) => f.phones)]).filter((p) => !suppressed.has(p.value)).slice(0, 4);
   const people = uniq(facts.flatMap((f) => f.people)).slice(0, 6);
   const info = { ...JSON.parse(row.company_info), description: facts.find((f) => f.description)?.description ?? null, socials: [...new Set(facts.flatMap((f) => f.socials))].slice(0, 4), pages_read: facts.length };
   const { fit, brief } = scoreAndBrief(row, { emails, phones, people, website: row.website, competitor: row.competitor, category: info.category }, zones);
@@ -173,6 +193,12 @@ export async function runQueue(env: Env) {
       done.push(`${job.kind}${payload.segment ? `:${payload.segment}` : ""} → ${result}`);
     } catch (e) {
       const msg = String((e as Error).message ?? e).slice(0, 300);
+      if (e instanceof Unreachable) {
+        await run(env, "UPDATE finder_jobs SET status='done', attempts=attempts+1, error=?2, updated_at=?3 WHERE id=?1", job.id, msg, new Date().toISOString());
+        await run(env, "UPDATE lead_intel SET status='unreachable', error=?2, enriched_at=?3 WHERE lead_id=?1", payload.lead_id, msg, new Date().toISOString());
+        done.push(`enrich ⊘ ${msg}`);
+        continue;
+      }
       await run(env, "UPDATE finder_jobs SET status=CASE WHEN attempts+1 >= 3 THEN 'failed' ELSE 'queued' END, attempts=attempts+1, error=?2, updated_at=?3 WHERE id=?1", job.id, msg, new Date().toISOString());
       if (job.kind === "enrich") await run(env, "UPDATE lead_intel SET status=CASE WHEN ?2 >= 2 THEN 'error' ELSE status END, error=?3 WHERE lead_id=?1", payload.lead_id, job.attempts, msg);
       done.push(`${job.kind} ✗ ${msg}`);

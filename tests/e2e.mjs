@@ -8,7 +8,7 @@ const shots = process.argv[2];
 const browser = await chromium.launch();
 const errors = [];
 const step = async (name, fn) => {
-  try { await fn(); console.log("✓", name); } catch (e) { errors.push(name); console.log("✗", name, "—", (e.message.split("\n").filter((l) => /waitFor|locator|Timeout|Error/.test(l)).slice(0, 3).join(" ⏎ ") || e.message.split("\n")[0])); }
+  try { await fn(); console.log("✓", name); } catch (e) { errors.push(name); console.log("✗", name, "—", (e.message.split("\n").filter((l) => /waitFor|locator|waiting for|Timeout|Error/.test(l)).slice(0, 3).join(" ⏎ ") || e.message.split("\n")[0])); }
 };
 async function session(email) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1200 } });
@@ -78,12 +78,16 @@ await step("admin overview + approve review quote", async () => {
   await snap(admin, "04-admin-overview");
 });
 await step("dispatch board drag & drop persists", async () => {
-  await admin.goto(`${BASE}/admin/dispatch`);
+  // The seeded job is "tomorrow" (Central time): open the board for the week containing it.
+  const tomorrowCT = new Date(Date.now() + 864e5).toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+  await admin.goto(`${BASE}/admin/dispatch?week=${tomorrowCT}`);
   const card = admin.locator('[draggable=true]', { hasText: "Courtyard pavers" }).first();
   await card.waitFor();
   const target = admin.locator(".contents").filter({ hasText: "Crew Bravo" }).locator("> div").nth(3);
-  await card.dragTo(target);
-  await admin.waitForTimeout(700);
+  await Promise.all([
+    admin.waitForResponse((r) => r.url().includes("/api/admin/jobs/") && r.request().method() === "PATCH" && r.ok()),
+    card.dragTo(target),
+  ]);
   await admin.reload();
   const inBravo = await admin.locator(".contents").filter({ hasText: "Crew Bravo" }).getByText("Courtyard pavers").count();
   if (!inBravo) throw new Error("job did not move to Crew Bravo");
@@ -163,6 +167,7 @@ await step("lead finder: competitor sighting → brief → do not contact", asyn
   await admin.getByText(/Never disparage the competitor/).waitFor();
   await admin.getByText(/Hi-Tech Power Wash seen working here/).waitFor();
   await snap(admin, "14-lead-brief");
+  await admin.waitForLoadState("networkidle"); // hydrated, so the button's handler is attached
   await admin.click('button:has-text("Do not contact")'); // confirm() auto-accepted by the dialog handler above
   await admin.getByText(/Do Not Contact:/).waitFor();
 });

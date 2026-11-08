@@ -70,3 +70,9 @@ test("fit score + brief", () => {
   assert.ok(b.compliance.some((c) => /disparage/.test(c)));
   assert.match(b.email.body, /Austin/);
 });
+
+test("real-world regressions: %20 in mailto, marketing phrases aren't people", () => {
+  const f = extractFacts('<a href="mailto:%20customerservice@connorgroup.com">x</a><p>Trusted Property Managers, Owner</p><p>Rental Company - Owner</p><p>Bryan Cady, Co-Founder</p>', "https://connorgroup.com/");
+  assert.deepEqual(f.emails.map((e) => e.value), ["customerservice@connorgroup.com"]);
+  assert.deepEqual(f.people.map((p) => p.name), ["Bryan Cady"]);
+});

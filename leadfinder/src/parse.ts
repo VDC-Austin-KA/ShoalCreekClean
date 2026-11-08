@@ -31,7 +31,9 @@ export function normalizePhone(raw: string): string | null {
 
 const TITLES = "General Manager|Property Manager|Community Manager|Facilities Manager|Facility Manager|Operations Manager|Director of Operations|Regional Manager|Assistant Manager|Leasing Manager|Building Manager|Store Manager|Owner|Co-Owner|Founder|Co-Founder|President|Managing Partner|Office Manager";
 const NAME = "([A-Z][a-z]+(?:[-'][A-Z][a-z]+)?(?: [A-Z]\\.)?(?: [A-Z][a-z]+(?:[-'][A-Z][a-z]+)?){1,2})";
-const NOT_NAMES = /^(Contact|About|Our|The|Meet|Call|Email|Home|Menu|Hours|Location|Austin|Texas|Round Rock|Cedar Park|Read More|Learn More|Customer|Service|Team|Leasing|Office)\b/;
+const NOT_NAMES = /^(Contact|About|Our|The|Meet|Call|Email|Home|Menu|Hours|Location|Austin|Texas|Round Rock|Cedar Park|Read More|Learn More|Customer|Service|Team|Leasing|Office|Trusted|Your|Best|Top|Local|Professional|Expert)\b/;
+// Words that mark a business/marketing phrase rather than a person's name.
+const BUSINESS_WORDS = /\b(Property|Properties|Managers?|Management|Company|Companies|Rental|Rentals|Services?|Group|Realty|Real|Estate|Team|Apartments?|Homes?|Llc|Inc|Leasing|Office|Center|Partners|Solutions|Investments?|Associates|Agency|Owners?|Residents?|Tenants?|Clients?|Community|Communities)\b/i;
 
 export function extractPeople(text: string, source: string): Person[] {
   const out: Person[] = [];
@@ -42,7 +44,7 @@ export function extractPeople(text: string, source: string): Person[] {
   for (const [i, re] of patterns.entries())
     for (const m of text.matchAll(re)) {
       const [name, title] = i === 0 ? [m[1], m[2]] : [m[2], m[1]];
-      if (NOT_NAMES.test(name) || out.some((p) => p.name === name)) continue;
+      if (NOT_NAMES.test(name) || BUSINESS_WORDS.test(name) || out.some((p) => p.name === name)) continue;
       out.push({ name, title, source });
     }
   return out.slice(0, 6);
@@ -53,7 +55,9 @@ export function extractFacts(html: string, pageUrl: string): PageFacts {
   const host = base.hostname.replace(/^www\./, "");
   const emails = new Map<string, Found>(), phones = new Map<string, Found>();
   const addEmail = (e: string) => {
-    const v = decode(e).trim().toLowerCase().replace(/^mailto:/, "").split("?")[0];
+    let raw = decode(e);
+    try { raw = decodeURIComponent(raw); } catch { /* keep as-is */ }
+    const v = raw.trim().toLowerCase().replace(/^mailto:/, "").split("?")[0].trim();
     if (/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(v) && !JUNK_EMAIL.test(v) && !emails.has(v)) emails.set(v, { value: v, source: pageUrl });
   };
   for (const m of html.matchAll(/href=["']mailto:([^"'?]+)/gi)) addEmail(m[1]);
