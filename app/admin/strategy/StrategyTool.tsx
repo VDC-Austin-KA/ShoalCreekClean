@@ -37,7 +37,7 @@ export function StrategyTool() {
           <p className="text-sm italic text-slate-300">“{s.callOpener}”</p>
           <ul className="mt-4 space-y-3 text-sm">{s.objections.map((o) => <li key={o.q}><div className="text-slate-200">{o.q}</div><div className="text-slate-500">→ {o.a}</div></li>)}</ul>
         </Card>
-        <Card title="Pitch collateral" className="lg:col-span-2"><ul className="grid gap-2 text-sm text-slate-300 sm:grid-cols-2">{s.collateral.map((c) => <li key={c} className="rounded-lg border border-white/5 bg-ink-900/50 p-3">▸ {c}</li>)}</ul></Card>
+        <Card title="Pitch collateral" className="lg:col-span-2"><ul className="grid gap-2 text-sm text-slate-300 sm:grid-cols-2">{s.collateral.map((c) => <li key={c} className="rounded-lg border border-ink-700 bg-ink-900/50 p-3">▸ {c}</li>)}</ul></Card>
       </div>
     </div>
   );

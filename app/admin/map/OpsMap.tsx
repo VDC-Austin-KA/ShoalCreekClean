@@ -17,7 +17,7 @@ type Data = {
 const LAYERS = { zones: "Service zones", competitor: "Competitors", hotspot: "Commercial density", pricing: "Pricing heat", jobs: "Open jobs", leads: "Leads" } as const;
 type LayerKey = keyof typeof LAYERS;
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-const dot = (color: string, size = 12) => L.divIcon({ className: "", iconSize: [size, size], html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};box-shadow:0 0 0 3px ${color}33,0 0 12px ${color}"></div>` });
+const dot = (color: string, size = 12) => L.divIcon({ className: "", iconSize: [size, size], html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};box-shadow:0 0 0 2px rgb(16 17 20 / 0.9)"></div>` });
 
 export default function OpsMap({ data }: { data: Data }) {
   const router = useRouter();
@@ -29,7 +29,7 @@ export default function OpsMap({ data }: { data: Data }) {
   const [on, setOn] = useState<Record<LayerKey, boolean>>({ zones: true, competitor: true, hotspot: true, pricing: false, jobs: true, leads: false });
   const [mode, setMode] = useState<"view" | "draw" | "route">("view");
   const [pts, setPts] = useState<[number, number][]>([]);
-  const [zoneForm, setZoneForm] = useState({ name: "", color: "#22d3ee", phase: 1 });
+  const [zoneForm, setZoneForm] = useState({ name: "", color: "#8da9b8", phase: 1 });
   const [stops, setStops] = useState<string[]>([]);
   const [crewId, setCrewId] = useState(data.crews[0]?.id ?? "");
   const [route, setRoute] = useState<{ minutes: number; km: number; legs: { km: number; min: number }[]; order: string[]; source: string } | null>(null);
@@ -52,24 +52,24 @@ export default function OpsMap({ data }: { data: Data }) {
     const g: Record<string, L.LayerGroup> = Object.fromEntries(Object.keys(LAYERS).map((k) => [k, L.layerGroup()]));
     for (const z of data.zones)
       L.polygon(z.polygon as L.LatLngTuple[], { interactive: mode !== "draw", color: z.color, weight: 1.5, fillOpacity: z.phase > 1 ? 0.04 : 0.1, dashArray: z.phase > 1 ? "6 6" : undefined })
-        .bindPopup(`<b>${esc(z.name)}</b><br/>Phase ${z.phase}<br/><small>${esc(z.notes ?? "")}</small><br/><button data-del-zone="${z.id}" style="margin-top:6px;color:#fb7185">Delete zone</button>`)
+        .bindPopup(`<b>${esc(z.name)}</b><br/>Phase ${z.phase}<br/><small>${esc(z.notes ?? "")}</small><br/><button data-del-zone="${z.id}" style="margin-top:6px;color:#d77d7d">Delete zone</button>`)
         .addTo(g.zones);
     for (const mk of data.markers) {
-      const color = mk.layer === "competitor" ? "#fb7185" : mk.layer === "hotspot" ? "#fbbf24" : "#a78bfa";
+      const color = mk.layer === "competitor" ? "#d77d7d" : mk.layer === "hotspot" ? "#d6aa68" : "#9e95bd";
       const opacity = mk.layer === "hotspot" ? 0.12 + mk.value * 0.25 : mk.layer === "pricing" ? 0.08 + (mk.value - 0.15) * 3 : 0.15;
       L.circle([mk.lat, mk.lng], { interactive: mode !== "draw", radius: mk.radius_m, color, weight: mk.layer === "competitor" ? 1 : 0, fillColor: color, fillOpacity: opacity })
-        .bindPopup(`<b>${esc(mk.label)}</b><br/><small>${esc(mk.notes ?? "")}${mk.layer === "competitor" ? `<br/><a href=\"/admin/competitors\" style=\"color:#22d3ee\">Competitor profile →</a>` : ""}</small>`)
+        .bindPopup(`<b>${esc(mk.label)}</b><br/><small>${esc(mk.notes ?? "")}${mk.layer === "competitor" ? `<br/><a href=\"/admin/competitors\" style=\"color:#8da9b8\">Competitor profile →</a>` : ""}</small>`)
         .addTo(g[mk.layer]);
     }
     for (const j of data.jobs) {
       const sel = stops.includes(j.id);
-      L.marker([j.lat, j.lng], { icon: dot(sel ? "#a3e635" : "#22d3ee", sel ? 16 : 12) })
+      L.marker([j.lat, j.lng], { icon: dot(sel ? "#70b48a" : "#8da9b8", sel ? 16 : 12) })
         .bindTooltip(`${esc(j.title)} · ${esc(j.client)}${j.day ? ` · ${j.day}` : ""}`)
         .on("click", () => { if (modeRef.current === "route") setStops((s) => (s.includes(j.id) ? s.filter((x) => x !== j.id) : [...s, j.id])); })
         .addTo(g.jobs);
     }
     for (const c of data.crews) L.marker([c.home_lat, c.home_lng], { icon: dot(c.color, 14) }).bindTooltip(`${esc(c.name)} home base`).addTo(g.jobs);
-    for (const l of data.leads) L.marker([l.lat, l.lng], { icon: dot("#f472b6", 10) }).bindTooltip(`${esc(l.company ?? l.name)} · ${l.stage} · ${usd(l.value_cents)}`).addTo(g.leads);
+    for (const l of data.leads) L.marker([l.lat, l.lng], { icon: dot("#b89aa6", 10) }).bindTooltip(`${esc(l.company ?? l.name)} · ${l.stage} · ${usd(l.value_cents)}`).addTo(g.leads);
     (Object.keys(LAYERS) as LayerKey[]).forEach((k) => on[k] && g[k].addTo(m));
     groups.current = g;
   }, [data, on, stops, mode]);
@@ -113,7 +113,7 @@ export default function OpsMap({ data }: { data: Data }) {
       } catch { res.source += " — road service unavailable"; }
     }
     routeLine.current?.remove();
-    routeLine.current = L.polyline(line, { color: "#a3e635", weight: 3 }).addTo(map.current!);
+    routeLine.current = L.polyline(line, { color: "#70b48a", weight: 3 }).addTo(map.current!);
     map.current!.fitBounds(routeLine.current.getBounds(), { padding: [40, 40] });
     setRoute(res);
   }
@@ -122,7 +122,7 @@ export default function OpsMap({ data }: { data: Data }) {
     <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
       <div className="glass relative overflow-hidden p-0">
         <div className={cx("h-[72vh] w-full", mode === "draw" && "[&_.leaflet-container]:cursor-crosshair")}><div ref={el} className="h-full w-full" /></div>
-        <div className="pointer-events-none absolute bottom-4 left-4 z-[500] flex flex-wrap gap-3 rounded-xl bg-ink-950/80 px-3 py-2 text-[11px] text-slate-400 backdrop-blur">
+        <div className="pointer-events-none absolute bottom-4 left-4 z-[500] flex flex-wrap gap-3 rounded-xl bg-ink-950/80 px-3 py-2 text-[11px] text-slate-400">
           <span><i className="mr-1 inline-block size-2 rounded-full bg-rose-400" />Competitor</span><span><i className="mr-1 inline-block size-2 rounded-full bg-amber-400" />Density</span>
           <span><i className="mr-1 inline-block size-2 rounded-full bg-violet-400" />Price heat</span><span><i className="mr-1 inline-block size-2 rounded-full bg-cyan-400" />Job</span><span><i className="mr-1 inline-block size-2 rounded-full bg-pink-400" />Lead</span>
         </div>
@@ -131,13 +131,13 @@ export default function OpsMap({ data }: { data: Data }) {
         <div className="glass p-4">
           <div className="label">Layers</div>
           {(Object.keys(LAYERS) as LayerKey[]).map((k) => (
-            <label key={k} className="flex items-center gap-2 py-1 text-sm text-slate-300"><input type="checkbox" className="accent-cyan-400" checked={on[k]} onChange={(e) => setOn({ ...on, [k]: e.target.checked })} />{LAYERS[k]}</label>
+            <label key={k} className="flex items-center gap-2 py-1 text-sm text-slate-300"><input type="checkbox" className="" checked={on[k]} onChange={(e) => setOn({ ...on, [k]: e.target.checked })} />{LAYERS[k]}</label>
           ))}
           <p className="mt-2 text-[11px] text-slate-600">Competitor + pricing layers come from sourced public research (city-level placement). See Competitor intel.</p>
         </div>
         <div className="glass p-4">
           <div className="mb-3 grid grid-cols-3 rounded-xl bg-ink-900 p-1 text-xs">
-            {(["view", "draw", "route"] as const).map((m) => <button key={m} onClick={() => { setMode(m); setPts([]); }} className={cx("rounded-lg py-1.5 capitalize", mode === m ? "bg-white/10 text-white" : "text-slate-500")}>{m === "draw" ? "Draw zone" : m}</button>)}
+            {(["view", "draw", "route"] as const).map((m) => <button key={m} onClick={() => { setMode(m); setPts([]); }} className={cx("rounded-lg py-1.5 capitalize", mode === m ? "bg-ink-700 text-white" : "text-slate-500")}>{m === "draw" ? "Draw zone" : m}</button>)}
           </div>
           {mode === "draw" && (
             <div className="space-y-2 animate-rise">

@@ -5,10 +5,10 @@ export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Bool
 
 export function Card({ children, className, title, action }: { children: ReactNode; className?: string; title?: ReactNode; action?: ReactNode }) {
   return (
-    <section className={cx("glass p-5 animate-rise", className)}>
+    <section className={cx("glass p-5", className)}>
       {(title || action) && (
         <header className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-300">{title}</h2>
+          <h2 className="text-[13px] font-semibold text-slate-200">{title}</h2>
           {action}
         </header>
       )}
@@ -17,30 +17,29 @@ export function Card({ children, className, title, action }: { children: ReactNo
   );
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  scheduled: "border-slate-500/40 text-slate-300 bg-slate-500/10",
-  en_route: "border-amber-400/40 text-amber-300 bg-amber-400/10",
-  in_progress: "border-accent/40 text-accent bg-accent/10",
-  completed: "border-lime-400/40 text-lime-300 bg-lime-400/10",
-  cancelled: "border-rose-400/40 text-rose-300 bg-rose-400/10",
-  open: "border-amber-400/40 text-amber-300 bg-amber-400/10",
-  paid: "border-lime-400/40 text-lime-300 bg-lime-400/10",
-  review: "border-violet-400/40 text-violet-300 bg-violet-400/10",
-  estimated: "border-accent/40 text-accent bg-accent/10",
-  simulated: "border-slate-500/40 text-slate-300 bg-slate-500/10",
-  sent: "border-lime-400/40 text-lime-300 bg-lime-400/10",
-  draft: "border-slate-500/40 text-slate-300 bg-slate-500/10",
-  failed: "border-rose-400/40 text-rose-300 bg-rose-400/10",
+// Status → neutral-tinted badge. Colors come from the remapped palette tokens in globals.css.
+const TONE = {
+  neutral: "border-ink-600 text-slate-400 bg-transparent",
+  accent: "border-accent/35 text-accent bg-accent/[0.06]",
+  success: "border-lime-400/35 text-lime-300 bg-lime-400/[0.06]",
+  warning: "border-amber-400/35 text-amber-300 bg-amber-400/[0.06]",
+  error: "border-rose-400/35 text-rose-300 bg-rose-400/[0.06]",
+  review: "border-violet-400/35 text-violet-300 bg-violet-400/[0.06]",
+};
+const STATUS_TONE: Record<string, keyof typeof TONE> = {
+  scheduled: "neutral", en_route: "warning", in_progress: "accent", completed: "success", cancelled: "error",
+  open: "warning", paid: "success", review: "review", estimated: "accent", simulated: "neutral", sent: "success", draft: "neutral", failed: "error",
 };
 export function Badge({ status, children }: { status: string; children?: ReactNode }) {
-  return <span className={cx("chip", STATUS_COLORS[status] ?? STATUS_COLORS.scheduled)}>{children ?? status.replace("_", " ")}</span>;
+  // Capitalized via CSS only, so the underlying text (used by features and tests) is unchanged.
+  return <span className={cx("chip capitalize", TONE[STATUS_TONE[status] ?? "neutral"])}>{children ?? status.replace("_", " ")}</span>;
 }
 
 export function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="glass lift p-5 animate-rise">
-      <div className="text-xs uppercase tracking-wider text-slate-400">{label}</div>
-      <div className="mt-2 text-3xl font-semibold tracking-tight text-white tabular-nums">{value}</div>
+    <div className="glass px-5 py-4">
+      <div className="text-xs text-slate-400">{label}</div>
+      <div className="mt-1.5 text-2xl font-semibold tracking-tight text-slate-100 tabular-nums">{value}</div>
       {sub && <div className="mt-1 text-xs text-slate-500">{sub}</div>}
     </div>
   );
@@ -52,33 +51,34 @@ export function Skeleton({ className }: { className?: string }) {
 export function PageSkeleton() {
   return (
     <div className="space-y-4">
-      <Skeleton className="h-8 w-56" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-28" />)}</div>
+      <Skeleton className="h-7 w-56" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-24" />)}</div>
       <Skeleton className="h-80" />
     </div>
   );
 }
 
+/** Brand mark: a single creek-stone drop on the accent, wordmark in primary text. */
 export function Logo({ href = "/" }: { href?: string }) {
   return (
-    <Link href={href} className="group flex items-center gap-2.5 font-semibold tracking-tight text-white">
-      <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-accent to-accent-2 text-ink-950 transition-transform duration-500 ease-(--ease-spring) group-hover:rotate-12">
-        <svg viewBox="0 0 24 24" className="size-4.5" fill="currentColor"><path d="M12 2s7 7.6 7 12.5A7 7 0 0 1 5 14.5C5 9.6 12 2 12 2Z" /></svg>
+    <Link href={href} className="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight text-slate-100">
+      <span className="grid size-7 place-items-center rounded-md bg-accent text-ink-950">
+        <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden><path d="M12 2.5s6.5 7 6.5 11.6a6.5 6.5 0 0 1-13 0C5.5 9.5 12 2.5 12 2.5Z" /></svg>
       </span>
-      Shoal Creek <span className="text-accent">Clean</span>
+      <span>Shoal Creek <span className="font-normal text-slate-400">Clean</span></span>
     </Link>
   );
 }
 
 export function PageHeader({ title, sub, action }: { title: string; sub?: string; action?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-3 animate-rise">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="headline text-2xl sm:text-3xl">{title}</h1>
-        {sub && <p className="mt-1 text-sm text-slate-400">{sub}</p>}
+        <h1 className="headline text-xl sm:text-2xl">{title}</h1>
+        {sub && <p className="mt-1 max-w-3xl text-sm text-slate-400">{sub}</p>}
       </div>
       {action}
     </div>
   );
 }
-export const Empty = ({ children }: { children: ReactNode }) => <div className="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-slate-500">{children}</div>;
+export const Empty = ({ children }: { children: ReactNode }) => <div className="rounded-lg border border-dashed border-ink-700 p-6 text-center text-sm text-slate-500">{children}</div>;

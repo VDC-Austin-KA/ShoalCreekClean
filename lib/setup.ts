@@ -19,7 +19,7 @@ export function lit(v: unknown): string {
 const insert = (table: string, row: Record<string, unknown>) =>
   `INSERT INTO ${table} (${Object.keys(row).join(",")}) VALUES (${Object.values(row).map(lit).join(",")});`;
 
-const TABLES = ["market_quotes", "competitors", "email_outbox", "campaigns", "map_markers", "service_zones", "payment_methods", "invoices",
+const TABLES = ["finder_jobs", "suppressions", "lead_intel", "market_quotes", "competitors", "email_outbox", "campaigns", "map_markers", "service_zones", "payment_methods", "invoices",
   "job_photos", "jobs", "quotes", "leads", "crew_members", "crews", "clients", "magic_links", "users", "pricing_rules"];
 
 export function buildSetupSql({ schemaSql, competitors, seed = false, passwordHash, now = new Date(), uuid = () => crypto.randomUUID() }: SetupOptions): string {
@@ -59,9 +59,9 @@ export function buildSetupSql({ schemaSql, competitors, seed = false, passwordHa
   const crewUsers = [user("alpha@shoalcreek.test", "Crew Lead Alpha", "crew"), user("bravo@shoalcreek.test", "Crew Lead Bravo", "crew"), user("charlie@shoalcreek.test", "Crew Lead Charlie", "crew")];
   const ALL = ["hot-water unit", "surface cleaner", "reclaim mat", "soft-wash rig", "ladders", "gutter vac", "fall protection", "sprayer"];
   const crewDefs: [string, string, number, number, number, string[]][] = [
-    ["Crew Alpha", "#22d3ee", 3, 30.3072, -97.7231, ALL],
-    ["Crew Bravo", "#a3e635", 2, 30.4794, -97.68, ["hot-water unit", "surface cleaner", "reclaim mat", "sprayer"]],
-    ["Crew Charlie", "#f472b6", 2, 30.5052, -97.8203, ["soft-wash rig", "ladders", "gutter vac", "fall protection", "surface cleaner"]],
+    ["Crew Alpha", "#8da9b8", 3, 30.3072, -97.7231, ALL],
+    ["Crew Bravo", "#70b48a", 2, 30.4794, -97.68, ["hot-water unit", "surface cleaner", "reclaim mat", "sprayer"]],
+    ["Crew Charlie", "#b89aa6", 2, 30.5052, -97.8203, ["soft-wash rig", "ladders", "gutter vac", "fall protection", "surface cleaner"]],
   ];
   const crews = crewDefs.map(([name, color, size, home_lat, home_lng, equipment], i) => {
     const id = uuid();
@@ -150,11 +150,11 @@ export function buildSetupSql({ schemaSql, competitors, seed = false, passwordHa
 
   // --- Service zones ([lat,lng] polygons, approximate)
   const Z: [string, string, number, number[][], string][] = [
-    ["Austin Core", "#22d3ee", 1, [[30.36, -97.8], [30.36, -97.68], [30.22, -97.68], [30.2, -97.8], [30.26, -97.84]], "Downtown, Domain-to-SoCo corridor"],
-    ["North Metro — Round Rock / Pflugerville", "#a3e635", 1, [[30.56, -97.72], [30.56, -97.57], [30.4, -97.57], [30.38, -97.68], [30.42, -97.74]], "I-35 / SH-130 retail and multifamily"],
-    ["Cedar Park / Leander", "#f472b6", 1, [[30.6, -97.9], [30.6, -97.78], [30.46, -97.76], [30.44, -97.86]], "183A corridor, HOAs"],
-    ["Georgetown (Phase 2)", "#fbbf24", 2, [[30.7, -97.74], [30.7, -97.62], [30.58, -97.62], [30.58, -97.74]], "Expansion after 3rd crew"],
-    ["Buda / Kyle (Phase 2)", "#fbbf24", 2, [[30.12, -97.9], [30.12, -97.78], [29.96, -97.78], [29.96, -97.9]], "Expansion — residential growth"],
+    ["Austin Core", "#8da9b8", 1, [[30.36, -97.8], [30.36, -97.68], [30.22, -97.68], [30.2, -97.8], [30.26, -97.84]], "Downtown, Domain-to-SoCo corridor"],
+    ["North Metro — Round Rock / Pflugerville", "#70b48a", 1, [[30.56, -97.72], [30.56, -97.57], [30.4, -97.57], [30.38, -97.68], [30.42, -97.74]], "I-35 / SH-130 retail and multifamily"],
+    ["Cedar Park / Leander", "#b89aa6", 1, [[30.6, -97.9], [30.6, -97.78], [30.46, -97.76], [30.44, -97.86]], "183A corridor, HOAs"],
+    ["Georgetown (Phase 2)", "#d6aa68", 2, [[30.7, -97.74], [30.7, -97.62], [30.58, -97.62], [30.58, -97.74]], "Expansion after 3rd crew"],
+    ["Buda / Kyle (Phase 2)", "#d6aa68", 2, [[30.12, -97.9], [30.12, -97.78], [29.96, -97.78], [29.96, -97.9]], "Expansion — residential growth"],
   ];
   for (const [name, color, phase, polygon, notes] of Z) out.push(insert("service_zones", { id: uuid(), name, color, phase, polygon, notes }));
 

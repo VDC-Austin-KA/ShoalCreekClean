@@ -22,6 +22,11 @@ Strategy docs: [`docs/MARKET_STRATEGY.md`](docs/MARKET_STRATEGY.md) covers segme
 - **Campaigns**: email composer with merge tags, audience segments and a live preview. Every email goes to the Outbox. Emails are simulated unless `RESEND_API_KEY` is set.
 - **Strategy generator** (`lib/strategy.ts`): takes segment, account size, city and season and produces an angle, an offer, a 17-day cadence, an email template, a call opener, objection handling and collateral. One click turns the output into a campaign.
 - **Price book**: partners can edit rates, minimums and production rates without a deploy.
+- **Lead finder** (`leadfinder/` Worker plus **Admin → Lead finder**, documented in [`docs/LEAD_FINDER.md`](docs/LEAD_FINDER.md)): a separate scheduled Worker.
+  - It discovers Austin-area businesses from OpenStreetMap and reads their own websites for published contacts and decision-makers. It honors `robots.txt`.
+  - It scores each lead's fit and writes a call/email brief in the founders' voice.
+  - Competitor sightings can be logged as leads.
+  - It includes a do-not-contact list and CAN-SPAM unsubscribe links.
 - **Competitor intel** (`/admin/competitors`, `data/competitors.json`, [`docs/COMPETITOR_INTEL.md`](docs/COMPETITOR_INTEL.md)): 23 real Central Texas operators, with every price sourced and verified verbatim. The page shows:
   - services claimed vs. services with evidence of actual work, as a say/do gap
   - our price book against published market prices

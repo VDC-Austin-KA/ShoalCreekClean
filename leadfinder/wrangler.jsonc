@@ -1,0 +1,16 @@
+// Lead finder: a separate scheduled Worker (runs outside the app) sharing the app's D1 database.
+// Deploy: npx wrangler deploy -c leadfinder/wrangler.jsonc   ·   Secret: FINDER_KEY (protects /run, /discover, /status)
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "shoalcreek-leadfinder",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "account_id": "1a08662719e83ad25376ff159ac70027",
+  "workers_dev": true,
+  "triggers": { "crons": ["*/10 * * * *"] },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "shoalcreek", "database_id": "5193dd2e-ae00-4ed5-8cbe-964bbc9d6997" }
+  ],
+  "observability": { "enabled": true }
+}

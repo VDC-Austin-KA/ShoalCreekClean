@@ -30,11 +30,11 @@ export default async function ClientHome() {
         <Stat label="Balance due" value={usd(open)} sub={<Link href="/client/billing" className="text-accent">View invoices →</Link>} />
       </div>
 
-      <Card title="Upcoming & live" action={<span className="flex items-center gap-2 text-xs text-slate-500"><span className="size-2 animate-pulse rounded-full bg-lime-400" />Live</span>}>
+      <Card title="Upcoming & live" action={<span className="flex items-center gap-2 text-xs text-slate-500"><span className="size-2 rounded-full bg-lime-400" />Live</span>}>
         {upcoming.length ? (
           <div className="space-y-4">
             {upcoming.map((j) => (
-              <div key={j.id} className="rounded-xl border border-white/5 bg-ink-900/50 p-4">
+              <div key={j.id} className="rounded-xl border border-ink-700 bg-ink-900/50 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="font-medium text-white">{j.title}</div>
@@ -54,7 +54,7 @@ export default async function ClientHome() {
         {history.length ? (
           <div className="space-y-4">
             {history.map((j) => (
-              <div key={j.id} className="grid gap-4 rounded-xl border border-white/5 bg-ink-900/50 p-4 md:grid-cols-[1fr_auto]">
+              <div key={j.id} className="grid gap-4 rounded-xl border border-ink-700 bg-ink-900/50 p-4 md:grid-cols-[1fr_auto]">
                 <div>
                   <div className="flex items-center gap-2 font-medium text-white">{j.title} <Badge status="completed" /></div>
                   <div className="text-xs text-slate-500">{dt(j.clock_out ?? j.scheduled_start)} · {usd(j.price_cents)}</div>
@@ -62,8 +62,8 @@ export default async function ClientHome() {
                     {j.photos.map((p: any, i: number) => (
                       <a key={i} href={p.url} target="_blank" className="relative block shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={p.url} alt={p.kind} className="h-24 w-36 rounded-lg object-cover transition-transform duration-500 hover:scale-105" />
-                        <span className="chip absolute bottom-1 left-1 border-white/20 bg-black/60 text-white">{p.kind}</span>
+                        <img src={p.url} alt={p.kind} className="h-24 w-36 rounded-lg object-cover transition-opacity hover:opacity-90" />
+                        <span className="chip absolute bottom-1 left-1 border-ink-600 bg-ink-950/75 text-white">{p.kind}</span>
                       </a>
                     ))}
                   </div>

@@ -22,10 +22,10 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         {invoices.length ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="text-left text-xs uppercase tracking-wider text-slate-500"><tr><th className="py-2">#</th><th>Description</th><th>Due</th><th className="text-right">Amount</th><th>Status</th><th /></tr></thead>
-              <tbody className="divide-y divide-white/5">
+              <thead className="text-left text-xs font-medium text-slate-500"><tr><th className="py-2">#</th><th>Description</th><th>Due</th><th className="text-right">Amount</th><th className="pl-4">Status</th><th /></tr></thead>
+              <tbody className="divide-y divide-ink-700">
                 {invoices.map((i) => (
-                  <tr key={i.id} className="transition-colors hover:bg-white/[0.02]">
+                  <tr key={i.id} className="transition-colors hover:bg-ink-850">
                     <td className="py-3 text-slate-400">{i.number}</td>
                     <td className="max-w-64 truncate">{i.description}</td>
                     <td className="text-slate-400">{dt(i.due_date, { month: "short", day: "numeric", timeZone: "UTC" })}</td>

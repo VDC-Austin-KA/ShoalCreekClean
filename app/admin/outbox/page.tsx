@@ -10,7 +10,7 @@ export default async function Outbox() {
       <PageHeader title="Email outbox" sub={process.env.SMTP_URL ? "SMTP delivery enabled" : "Simulated delivery — set SMTP_URL to send real email"} />
       <Card>
         {mail.length ? (
-          <ul className="divide-y divide-white/5">
+          <ul className="divide-y divide-ink-700">
             {mail.map((m) => (
               <li key={m.id}>
                 <details className="group py-3">

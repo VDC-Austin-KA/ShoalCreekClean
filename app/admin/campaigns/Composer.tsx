@@ -31,7 +31,7 @@ export function Composer({ initial }: { initial: { name: string; subject: string
         </form>
         <div>
           <div className="label">Preview</div>
-          <div className="rounded-xl border border-white/10 bg-white p-5 text-sm text-slate-800 shadow-inner">
+          <div className="rounded-xl border border-ink-700 bg-white p-5 text-sm text-slate-800 shadow-inner">
             <div className="border-b pb-2 text-xs text-slate-500">To: jordan@example.com</div>
             <div className="mt-2 font-semibold">{merge(f.subject, sample) || "Subject"}</div>
             <div className="mt-3 whitespace-pre-wrap">{merge(f.body, sample) || "Body…"}</div>
